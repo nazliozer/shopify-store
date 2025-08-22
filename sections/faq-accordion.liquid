@@ -44,7 +44,20 @@ FAQ (Homepage + Collection)
   {%- endunless -%}
 {%- endfor -%}
 
-{%- if uniq.size > 0 -%}
+{%- comment -%} DEBUG: Veri kontrolü {%- endcomment -%}
+<!-- DEBUG INFO:
+  is_collection: {{ is_collection }}
+  global_faq_group: {{ section.settings.global_faq_group }}
+  merged_groups size: {{ merged_groups.size }}
+  uniq_groups size: {{ uniq_groups.size }}
+  template: {{ template.name }}
+  collection: {{ collection.handle | default: 'none' }}
+-->
+
+{%- comment -%} Test verisi ekle (geliştirme sırasında) {%- endcomment -%}
+{%- assign has_test_data = true -%}
+
+{%- if uniq_groups.size > 0 or has_test_data -%}
 <section class="faq-section page-width">
   {%- if section.settings.heading != blank -%}
     <h2 class="faq-section__title">{{ section.settings.heading }}</h2>
@@ -63,7 +76,8 @@ FAQ (Homepage + Collection)
   {%- endif -%}
 
   <div class="faq-groups">
-    {%- for group in uniq -%}
+    {%- comment -%} Gerçek veri varsa göster {%- endcomment -%}
+    {%- for group in uniq_groups -%}
       {%- assign items = group.items.value -%}
       {%- if items != blank -%}
         <article class="faq-group">
@@ -88,6 +102,33 @@ FAQ (Homepage + Collection)
         </article>
       {%- endif -%}
     {%- endfor -%}
+
+    {%- comment -%} Test verisi (geliştirme sırasında) {%- endcomment -%}
+    {%- if uniq_groups.size == 0 -%}
+      <article class="faq-group">
+        <h3 class="faq-group__title">Test FAQ Group</h3>
+        <div class="faq-accordion">
+          <details class="faq-item" open>
+            <summary class="faq-question">
+              <span>Bu bir test sorusu mu?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer rte">
+              <p>Evet, bu bir test sorusudur. FAQ section'ı çalışıyor!</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>FAQ section'ı nasıl çalışır?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer rte">
+              <p>FAQ section'ı section settings'den "General FAQ group" seçildiğinde veya collection metafields'de faq_groups tanımlandığında çalışır.</p>
+            </div>
+          </details>
+        </div>
+      </article>
+    {%- endif -%}
   </div>
 </section>
 {%- endif -%}
@@ -114,7 +155,7 @@ FAQ (Homepage + Collection)
       "type": "text",
       "id": "subtext",
       "label": "Subheading / helper text",
-      "default": "sub"
+      "default": "text"
     },
     {
       "type": "checkbox",
