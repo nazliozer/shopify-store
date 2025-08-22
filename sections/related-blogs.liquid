@@ -1,55 +1,10 @@
 <section class="related-blogs page-width">
-  {%- comment -%} Get related blogs from collection or homepage settings {%- endcomment -%}
   {%- assign related_blogs = nil -%}
-  
+
   {%- if template.name == 'collection' and collection.metafields.custom.related_blogs != blank -%}
     {%- assign related_blogs = collection.metafields.custom.related_blogs.value -%}
-  {%- elsif template.name == 'index' and section.settings.homepage_blogs != blank -%}
-    {%- assign related_blogs = section.settings.homepage_blogs.value -%}
   {%- elsif template.name == 'index' and section.settings.homepage_blogs_list != blank -%}
     {%- assign related_blogs = section.settings.homepage_blogs_list.value -%}
-  {%- endif -%}
-
-  {%- comment -%} Debug: Show what we have {%- endcomment -%}
-  {%- if request.design_mode -%}
-    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
-      <strong>Debug Info:</strong><br>
-      Template: {{ template.name }}<br>
-      Collection blogs: {{ collection.metafields.custom.related_blogs | json }}<br>
-      Homepage blogs: {{ section.settings.homepage_blogs | json }}<br>
-      Related blogs: {{ related_blogs | json }}<br><br>
-      
-      <strong>Metaobject Details:</strong><br>
-      {%- if section.settings.homepage_blogs != blank -%}
-        Homepage blogs metaobject: {{ section.settings.homepage_blogs | json }}<br>
-        Homepage blogs type: {{ section.settings.homepage_blogs.object_type }}<br>
-        Homepage blogs fields: {{ section.settings.homepage_blogs.fields | json }}<br>
-        {%- for field in section.settings.homepage_blogs.fields -%}
-          Field: {{ field.key }} = {{ field.value | json }}<br>
-        {%- endfor -%}
-      {%- else -%}
-        Homepage blogs is blank<br>
-      {%- endif -%}
-      
-      {%- if section.settings.homepage_blogs_list != blank -%}
-        Homepage blogs list: {{ section.settings.homepage_blogs_list | json }}<br>
-        Homepage blogs list type: {{ section.settings.homepage_blogs_list.object_type }}<br>
-        Homepage blogs list count: {{ section.settings.homepage_blogs_list.value.size }}<br>
-      {%- else -%}
-        Homepage blogs list is blank<br>
-      {%- endif -%}
-      
-      {%- if collection.metafields.custom.related_blogs != blank -%}
-        Collection blogs metaobject: {{ collection.metafields.custom.related_blogs | json }}<br>
-        Collection blogs type: {{ collection.metafields.custom.related_blogs.object_type }}<br>
-        Collection blogs fields: {{ collection.metafields.custom.related_blogs.fields | json }}<br>
-        {%- for field in collection.metafields.custom.related_blogs.fields -%}
-          Field: {{ field.key }} = {{ field.value | json }}<br>
-        {%- endfor -%}
-      {%- else -%}
-        Collection blogs is blank<br>
-      {%- endif -%}
-    </div>
   {%- endif -%}
 
   {%- if related_blogs != blank -%}
@@ -57,17 +12,11 @@
     <div class="related-blogs__grid">
       {%- for blog_post in related_blogs -%}
         <article class="related-blogs__card">
-          {%- comment -%} Handle different metaobject structures {%- endcomment -%}
-          {%- assign post_image = blog_post.image | default: blog_post.featured_image | default: blog_post.thumbnail -%}
-          {%- assign post_title = blog_post.title | default: blog_post.heading | default: blog_post.name -%}
-          {%- assign post_excerpt = blog_post.excerpt | default: blog_post.description | default: blog_post.summary -%}
-          {%- assign post_url = blog_post.article.url | default: blog_post.url | default: blog_post.link -%}
-          
-          {%- if post_image != blank -%}
-            <a href="{{ post_url }}" class="related-blogs__image-link">
+          {%- if blog_post.image != blank -%}
+            <a href="{{ blog_post.url }}" class="related-blogs__image-link">
               <img 
-                src="{{ post_image | image_url: width: 600 }}" 
-                alt="{{ post_title | escape }}" 
+                src="{{ blog_post.image | image_url: width: 600 }}" 
+                alt="{{ blog_post.title | escape }}" 
                 class="related-blogs__image" 
                 loading="lazy"
               >
@@ -76,10 +25,10 @@
 
           <div class="related-blogs__content">
             <h3 class="related-blogs__heading">
-              <a href="{{ post_url }}">{{ post_title }}</a>
+              <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
             </h3>
-            {%- if post_excerpt != blank -%}
-              <p class="related-blogs__excerpt">{{ post_excerpt }}</p>
+            {%- if blog_post.excerpt != blank -%}
+              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
             {%- endif -%}
           </div>
         </article>
@@ -108,17 +57,10 @@
       "default": "Related Articles"
     },
     {
-      "type": "metaobject",
-      "id": "homepage_blogs",
-      "label": "Homepage Blog Posts",
-      "metaobject_type": "blog_post",
-      "info": "Select blog posts to display on the homepage"
-    },
-    {
       "type": "metaobject_list",
       "id": "homepage_blogs_list",
-      "label": "Homepage Blog Posts (List)",
-      "metaobject_type": "blog_post",
+      "label": "Homepage Blog Posts",
+      "metaobject_type": "related_blogpost",
       "info": "Select multiple blog posts to display on the homepage"
     }
   ],
@@ -240,7 +182,7 @@
   border: 1px solid #f0f0f0;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
   .related-blogs {
     margin: 2rem 0;
