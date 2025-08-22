@@ -211,9 +211,11 @@ details[open] .faq-icon {
 </style>
 
 <section class="faq-section page-width">
-  <h2 class="faq-section__title">
-    {{ section.settings.heading | default: 'Frequently Asked Questions' }}
-  </h2>
+  {%- if section.settings.heading != blank -%}
+    <h2 class="faq-section__title">
+      {{ section.settings.heading }}
+    </h2>
+  {%- endif -%}
 
   {%- if section.settings.subtext != blank -%}
     <p class="faq-section__subtitle">{{ section.settings.subtext }}</p>
@@ -300,8 +302,7 @@ details[open] .faq-icon {
     {
       "type": "inline_richtext",
       "id": "heading",
-      "label": "Heading",
-      "default": "Frequently Asked Questions"
+      "label": "Heading"
     },
     {
       "type": "text",

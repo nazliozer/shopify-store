@@ -41,13 +41,28 @@
       "type": "sub-collection-nav",
       "name": "Sub-collection slider",
       "settings": {
-        "title": "Featured categories"
+        "title": "Featured categories",
+        "subtitle": "Discover our curated collections",
+        "featured_collection": ""
+      }
+    },
+    "faq_accordion_rcBrTM": {
+      "type": "faq-accordion",
+      "name": "FAQ (General + Collection)",
+      "settings": {
+        "faq_group": "",
+        "heading": "Frequently Asked Questions",
+        "subtext": "",
+        "show_group_titles": true,
+        "open_first": true,
+        "limit_per_group": 10
       }
     }
   },
   "order": [
     "banner",
     "product-grid",
-    "sub_collection_nav_aNUeEk"
+    "sub_collection_nav_aNUeEk",
+    "faq_accordion_rcBrTM"
   ]
 }
