@@ -3,8 +3,13 @@
   - Data: collection.metafields.custom.category_slider (List<Collection> OR List<Metaobject{collection}>)
 {%- endcomment -%}
 
-{% if template.name == 'collection' and collection %}
-  {%- assign entries = collection.metafields.custom.category_slider.value -%}
+{%- comment -%}
+  Determine which collection to use for sub-collections
+{%- endcomment -%}
+{%- assign target_collection = section.settings.featured_collection | default: collection -%}
+
+{%- if target_collection -%}
+  {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
     {%- assign cats = entries -%}
     {%- if entries.first and entries.first.object_type -%}
@@ -73,7 +78,7 @@
     </section>
     {%- endif -%}
   {%- endif -%}
-{% endif %}
+{%- endif -%}
 
 {% schema %}
 {
@@ -90,10 +95,16 @@
       "id": "subtitle",
       "label": "Subtitle",
       "default": "Discover our curated collections"
+    },
+    {
+      "type": "collection",
+      "id": "featured_collection",
+      "label": "Featured Collection",
+      "info": "Select a collection to display its sub-collections. Leave empty to use current collection context."
     }
   ],
   "presets": [{ "name": "Sub-collection slider" }],
-  "enabled_on": { "templates": ["collection"] }
+  "enabled_on": { "templates": ["collection", "index"] }
 }
 {% endschema %}
 
