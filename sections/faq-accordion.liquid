@@ -65,7 +65,7 @@
                   <span class="faq-icon" aria-hidden="true">+</span>
                 </summary>
                 <div class="faq-answer rte">
-                  {{ item.answer.value }}
+                  {{ item.answer | metafield_tag }}
                 </div>
               </details>
             {% endfor %}
@@ -86,7 +86,7 @@
               <span class="faq-icon" aria-hidden="true">+</span>
             </summary>
             <div class="faq-answer rte">
-              {{ item.answer.value }}
+              {{ item.answer | metafield_tag }}
             </div>
           </details>
         {% endfor %}
