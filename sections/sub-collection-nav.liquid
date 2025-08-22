@@ -9,30 +9,24 @@
 {%- assign target_collection = section.settings.featured_collection | default: collection -%}
 
 {%- if target_collection -%}
-  {%- comment -%} Debug: Check what we have {%- endcomment -%}
-  {%- if request.design_mode -%}
-    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
-      <strong>Debug Info:</strong><br>
-      Target Collection: {{ target_collection.title | json }}<br>
-      Target Collection Handle: {{ target_collection.handle | json }}<br>
-      Metaobject Field: {{ target_collection.metafields.custom.category_slider | json }}<br>
-      Metaobject Value: {{ target_collection.metafields.custom.category_slider.value | json }}<br>
-      Metaobject Type: {{ target_collection.metafields.custom.category_slider.type | json }}<br>
-    </div>
-  {%- endif -%}
-  
   {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
-    {%- assign cats = entries -%}
+    {%- comment -%} Convert GID references to collection objects {% endcomment -%}
+    {%- assign cats = blank -%}
+    {%- assign cats_array = '' | split: '' -%}
     
-    {%- comment -%} Handle different data structures {%- endcomment -%}
-    {%- if entries.first.object_type == 'collection' -%}
-      {%- assign cats = entries -%}
-    {%- elsif entries.first.collection -%}
-      {%- assign cats = entries | map: 'collection' -%}
-    {%- else -%}
-      {%- assign cats = entries -%}
-    {%- endif -%}
+    {%- for entry in entries -%}
+      {%- if entry.collection -%}
+        {%- assign collection_gid = entry.collection -%}
+        {%- assign collection_handle = collection_gid | split: '/' | last -%}
+        {%- assign collection_object = collections[collection_handle] -%}
+        {%- if collection_object -%}
+          {%- assign cats_array = cats_array | push: collection_object -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+    
+    {%- assign cats = cats_array -%}
 
     {%- if cats != blank -%}
     <section class="sub-collection-nav" aria-label="Sub-categories">
