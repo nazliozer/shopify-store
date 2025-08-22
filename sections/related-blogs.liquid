@@ -31,6 +31,10 @@
         </article>
       {%- endfor -%}
     </div>
+  {%- else -%}
+    <div class="related-blogs__empty">
+      <p>No related blog posts found for this collection.</p>
+    </div>
   {%- endif -%}
 </section>
 
@@ -59,8 +63,9 @@
 
 <style>
 .related-blogs {
-  margin: 4rem 0;
-  padding: 0 2rem;
+  margin: 4rem auto;
+  padding: 0;
+  max-width: 1200px;
 }
 
 .related-blogs__title {
@@ -175,8 +180,9 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .related-blogs {
-    margin: 2rem 0;
+    margin: 2rem auto;
     padding: 0 1rem;
+    max-width: 100%;
   }
   
   .related-blogs__title {
