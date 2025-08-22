@@ -1,6 +1,6 @@
 <section class="related-blogs page-width">
   {%- if collection.metafields.custom.related_blogs != blank -%}
-    <h2 class="related-blogs__title">Related Articles</h2>
+    <h2 class="related-blogs__title">{{ section.settings.heading | default: 'Related Articles' }}</h2>
     <div class="related-blogs__grid">
       {%- for blog_post in collection.metafields.custom.related_blogs.value -%}
         <article class="related-blogs__card">
@@ -59,56 +59,137 @@
 <style>
 .related-blogs {
   margin: 4rem 0;
+  padding: 0;
 }
+
 .related-blogs__title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   text-align: center;
+  color: #2d3748;
+  position: relative;
+  letter-spacing: -0.02em;
 }
+
+.related-blogs__title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, #a0aec0, #cbd5e0);
+  border-radius: 1px;
+}
+
 .related-blogs__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
 .related-blogs__card {
-  background: #fff;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
 }
+
 .related-blogs__card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+  border-color: #e0e0e0;
 }
+
+.related-blogs__image-link {
+  display: block;
+  overflow: hidden;
+}
+
 .related-blogs__image {
   width: 100%;
-  height: 200px;
+  height: 220px;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
+
+.related-blogs__card:hover .related-blogs__image {
+  transform: scale(1.05);
+}
+
 .related-blogs__content {
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
+
 .related-blogs__heading {
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+  color: #2d3748;
 }
+
 .related-blogs__heading a {
   text-decoration: none;
   color: inherit;
+  transition: color 0.2s ease;
 }
+
+.related-blogs__heading a:hover {
+  color: #4a5568;
+}
+
 .related-blogs__excerpt {
   font-size: 1rem;
-  color: #555;
+  color: #4a5568;
   line-height: 1.6;
   margin: 0;
+  font-weight: 400;
 }
+
 .related-blogs__empty {
   text-align: center;
-  color: #777;
-  font-size: 1rem;
-  padding: 2rem;
+  color: #718096;
+  font-size: 1.125rem;
+  padding: 3rem 2rem;
+  background: #f8f8f8;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .related-blogs {
+    margin: 2rem 0;
+  }
+  
+  .related-blogs__title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .related-blogs__grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .related-blogs__card {
+    border-radius: 12px;
+  }
+  
+  .related-blogs__content {
+    padding: 1.25rem;
+  }
+  
+  .related-blogs__image {
+    height: 200px;
+  }
 }
 </style>
