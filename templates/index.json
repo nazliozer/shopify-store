@@ -86,11 +86,24 @@
         "subtitle": "Discover our curated collections",
         "featured_collection": "skincare"
       }
+    },
+    "faq_accordion_XTdw4G": {
+      "type": "faq-accordion",
+      "name": "FAQ (General + Collection)",
+      "settings": {
+        "global_faq_group": "faq-group-whypeyqk",
+        "heading": "Frequently Asked Questions{{ section.settings.global_faq_group.title.value }}",
+        "subtext": "",
+        "show_group_titles": true,
+        "open_first": true,
+        "limit_per_group": 10
+      }
     }
   },
   "order": [
     "image_banner",
     "featured_collection_jL7yxg",
-    "sub_collection_nav_JpLwLX"
+    "sub_collection_nav_JpLwLX",
+    "faq_accordion_XTdw4G"
   ]
 }
