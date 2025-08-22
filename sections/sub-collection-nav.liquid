@@ -1,5 +1,5 @@
 {%- comment -%}
-  Enhanced Sub-collection Slider with Better UX
+  Enhanced Sub-collection Navigation with Better UX
   - Data: collection.metafields.custom.category_slider (List<Collection> OR List<Metaobject{collection}>)
 {%- endcomment -%}
 
@@ -17,47 +17,47 @@
     {%- endif -%}
 
     {%- if cats != blank -%}
-    <section class="subcat-slider" aria-label="Sub-categories">
-      <div class="subcat-slider__inner page-width">
-        <div class="subcat-slider__header">
-          <h2 class="subcat-slider__title">
+    <section class="sub-collection-nav" aria-label="Sub-categories">
+      <div class="sub-collection-nav__inner page-width">
+        <div class="sub-collection-nav__header">
+          <h2 class="sub-collection-nav__title">
             {{ section.settings.title | default: 'Explore Categories' }}
           </h2>
           {% if section.settings.subtitle != blank %}
-            <p class="subcat-slider__subtitle">{{ section.settings.subtitle }}</p>
+            <p class="sub-collection-nav__subtitle">{{ section.settings.subtitle }}</p>
           {% endif %}
         </div>
 
-        <div class="subcat-slider__viewport">
-          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous categories" disabled>
+        <div class="sub-collection-nav__viewport">
+          <button type="button" class="sub-collection-nav__arrow sub-collection-nav__arrow--prev" aria-label="Previous categories" disabled>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
 
-          <div class="subcat-slider__track" role="tablist" tabindex="0">
+          <div class="sub-collection-nav__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
               {%- if c and c != blank -%}
-              <a class="subcat-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
-                <div class="subcat-card__media">
+              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
+                <div class="sub-collection-card__media">
                   {%- if c.image -%}
-                    {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'subcat-card__image' }}
+                    {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'sub-collection-card__image' }}
                   {%- else -%}
-                    {{ 'collection-1' | placeholder_svg_tag: class: 'subcat-card__placeholder' }}
+                    {{ 'collection-1' | placeholder_svg_tag: class: 'sub-collection-card__placeholder' }}
                   {%- endif -%}
-                  <div class="subcat-card__overlay">
-                    <span class="subcat-card__view-more">View Collection</span>
+                  <div class="sub-collection-card__overlay">
+                    <span class="sub-collection-card__view-more">View Collection</span>
                   </div>
                 </div>
-                <div class="subcat-card__body">
-                  <h3 class="subcat-card__title">
+                <div class="sub-collection-card__body">
+                  <h3 class="sub-collection-card__title">
                     {{ c.title }}
                   </h3>
                   {% if c.description != blank %}
-                    <p class="subcat-card__description">{{ c.description | strip_html | truncate: 80 }}</p>
+                    <p class="sub-collection-card__description">{{ c.description | strip_html | truncate: 80 }}</p>
                   {% endif %}
                   {% if c.products_count != blank %}
-                    <span class="subcat-card__count">{{ c.products_count }} products</span>
+                    <span class="sub-collection-card__count">{{ c.products_count }} products</span>
                   {% endif %}
                 </div>
               </a>
@@ -65,14 +65,14 @@
             {%- endfor -%}
           </div>
 
-          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next categories">
+          <button type="button" class="sub-collection-nav__arrow sub-collection-nav__arrow--next" aria-label="Next categories">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
 
-          <div class="subcat-slider__fade subcat-slider__fade--left" aria-hidden="true"></div>
-          <div class="subcat-slider__fade subcat-slider__fade--right" aria-hidden="true"></div>
+          <div class="sub-collection-nav__fade sub-collection-nav__fade--left" aria-hidden="true"></div>
+          <div class="sub-collection-nav__fade sub-collection-nav__fade--right" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -82,7 +82,7 @@
 
 {% schema %}
 {
-  "name": "Sub-collection slider",
+  "name": "Sub-collection Navigation",
   "settings": [
     { 
       "type": "inline_richtext", 
@@ -103,13 +103,13 @@
       "info": "Select a collection to display its sub-collections. Leave empty to use current collection context."
     }
   ],
-  "presets": [{ "name": "Sub-collection slider" }],
+  "presets": [{ "name": "Sub-collection Navigation" }],
   "enabled_on": { "templates": ["collection", "index"] }
 }
 {% endschema %}
 
 {% stylesheet %}
-.subcat-slider {
+.sub-collection-nav {
   --gap: 1.5rem;
   --card-w: 320px;
   --card-h: 280px;
@@ -120,12 +120,12 @@
   margin: 3rem 0;
 }
 
-.subcat-slider__header {
+.sub-collection-nav__header {
   text-align: center;
   margin-bottom: 2.5rem;
 }
 
-.subcat-slider__title {
+.sub-collection-nav__title {
   margin: 0 0 0.75rem 0;
   font-weight: 700;
   font-size: clamp(1.75rem, 1.5rem + 1.5vw, 2.5rem);
@@ -134,7 +134,7 @@
   letter-spacing: -0.02em;
 }
 
-.subcat-slider__subtitle {
+.sub-collection-nav__subtitle {
   margin: 0;
   font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
   color: var(--color-text-light);
@@ -144,12 +144,12 @@
   margin-right: auto;
 }
 
-.subcat-slider__viewport {
+.sub-collection-nav__viewport {
   position: relative;
   margin: 0 -1rem;
 }
 
-.subcat-slider__track {
+.sub-collection-nav__track {
   display: flex;
   gap: var(--gap);
   overflow-x: auto;
@@ -159,26 +159,26 @@
   margin: 0 1rem;
 }
 
-.subcat-slider__track::-webkit-scrollbar {
+.sub-collection-nav__track::-webkit-scrollbar {
   height: 6px;
 }
 
-.subcat-slider__track::-webkit-scrollbar-track {
+.sub-collection-nav__track::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 999px;
 }
 
-.subcat-slider__track::-webkit-scrollbar-thumb {
+.sub-collection-nav__track::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 999px;
   transition: background 0.2s ease;
 }
 
-.subcat-slider__track::-webkit-scrollbar-thumb:hover {
+.sub-collection-nav__track::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
-.subcat-card {
+.sub-collection-card {
   flex: 0 0 auto;
   width: var(--card-w);
   height: var(--card-h);
@@ -195,33 +195,33 @@
   flex-direction: column;
 }
 
-.subcat-card:hover,
-.subcat-card:focus-visible {
+.sub-collection-card:hover,
+.sub-collection-card:focus-visible {
   transform: translateY(-4px);
   box-shadow: var(--shadow-hover);
   outline: none;
 }
 
-.subcat-card.is-active {
+.sub-collection-card.is-active {
   box-shadow: 0 0 0 3px var(--color-accent), var(--shadow);
 }
 
-.subcat-card__media {
+.sub-collection-card__media {
   position: relative;
   flex: 1;
   overflow: hidden;
   background: #f8f8f8;
 }
 
-.subcat-card__image,
-.subcat-card__placeholder {
+.sub-collection-card__image,
+.sub-collection-card__placeholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: var(--transition);
 }
 
-.subcat-card__placeholder {
+.sub-collection-card__placeholder {
   background: #f0f0f0;
   display: flex;
   align-items: center;
@@ -229,7 +229,7 @@
   color: #999;
 }
 
-.subcat-card__overlay {
+.sub-collection-card__overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -240,11 +240,11 @@
   transition: var(--transition);
 }
 
-.subcat-card:hover .subcat-card__overlay {
+.sub-collection-card:hover .sub-collection-card__overlay {
   opacity: 1;
 }
 
-.subcat-card__view-more {
+.sub-collection-card__view-more {
   color: white;
   font-weight: 600;
   font-size: 0.875rem;
@@ -257,13 +257,13 @@
   backdrop-filter: blur(10px);
 }
 
-.subcat-card__body {
+.sub-collection-card__body {
   padding: 1.5rem;
   background: white;
   flex-shrink: 0;
 }
 
-.subcat-card__title {
+.sub-collection-card__title {
   margin: 0 0 0.5rem 0;
   font-weight: 700;
   font-size: 1.125rem;
@@ -272,7 +272,7 @@
   letter-spacing: -0.01em;
 }
 
-.subcat-card__description {
+.sub-collection-card__description {
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -283,7 +283,7 @@
   overflow: hidden;
 }
 
-.subcat-card__count {
+.sub-collection-card__count {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
@@ -295,7 +295,7 @@
   border-radius: 999px;
 }
 
-.subcat-slider__arrow {
+.sub-collection-nav__arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -313,35 +313,35 @@
   color: var(--color-text);
 }
 
-.subcat-slider__arrow:hover {
+.sub-collection-nav__arrow:hover {
   background: var(--color-accent);
   color: white;
   transform: translateY(-50%) scale(1.05);
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
 }
 
-.subcat-slider__arrow--prev {
+.sub-collection-nav__arrow--prev {
   left: 0.5rem;
 }
 
-.subcat-slider__arrow--next {
+.sub-collection-nav__arrow--next {
   right: 0.5rem;
 }
 
-.subcat-slider__arrow[disabled] {
+.sub-collection-nav__arrow[disabled] {
   opacity: 0.4;
   cursor: not-allowed;
   transform: translateY(-50%);
 }
 
-.subcat-slider__arrow[disabled]:hover {
+.sub-collection-nav__arrow[disabled]:hover {
   background: white;
   color: var(--color-text);
   transform: translateY(-50%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.subcat-slider__fade {
+.sub-collection-nav__fade {
   pointer-events: none;
   position: absolute;
   top: 0;
@@ -350,99 +350,99 @@
   z-index: 1;
 }
 
-.subcat-slider__fade--left {
+.sub-collection-nav__fade--left {
   left: 0;
   background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
-.subcat-slider__fade--right {
+.sub-collection-nav__fade--right {
   right: 0;
   background: linear-gradient(-90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .subcat-slider {
+  .sub-collection-nav {
     --card-w: 280px;
     --card-h: 260px;
   }
 }
 
 @media (max-width: 900px) {
-  .subcat-slider {
+  .sub-collection-nav {
     --card-w: 260px;
     --card-h: 240px;
     --gap: 1.25rem;
   }
   
-  .subcat-slider__track {
+  .sub-collection-nav__track {
     padding: 1rem 3.5rem;
   }
 }
 
 @media (max-width: 640px) {
-  .subcat-slider {
+  .sub-collection-nav {
     --card-w: 220px;
     --card-h: 220px;
     --gap: 1rem;
     margin: 2rem 0;
   }
   
-  .subcat-slider__header {
+  .sub-collection-nav__header {
     margin-bottom: 2rem;
   }
   
-  .subcat-slider__track {
+  .sub-collection-nav__track {
     padding: 1rem 3rem;
     margin: 0 0.5rem;
   }
   
-  .subcat-slider__arrow {
+  .sub-collection-nav__arrow {
     width: 40px;
     height: 40px;
   }
   
-  .subcat-card__body {
+  .sub-collection-card__body {
     padding: 1.25rem;
   }
   
-  .subcat-card__title {
+  .sub-collection-card__title {
     font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .subcat-slider {
+  .sub-collection-nav {
     --card-w: 200px;
     --card-h: 200px;
   }
   
-  .subcat-slider__track {
+  .sub-collection-nav__track {
     padding: 1rem 2.5rem;
   }
 }
 
 /* Accessibility and Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .subcat-card,
-  .subcat-card__overlay,
-  .subcat-card__image,
-  .subcat-slider__arrow {
+  .sub-collection-card,
+  .sub-collection-card__overlay,
+  .sub-collection-card__image,
+  .sub-collection-nav__arrow {
     transition: none;
   }
   
-  .subcat-slider__track {
+  .sub-collection-nav__track {
     scroll-behavior: auto;
   }
 }
 
 /* Focus styles for better accessibility */
-.subcat-card:focus-visible {
+.sub-collection-card:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.subcat-slider__arrow:focus-visible {
+.sub-collection-nav__arrow:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -450,17 +450,17 @@
 
 {% javascript %}
 document.addEventListener('DOMContentLoaded', function() {
-  const sliders = document.querySelectorAll('.subcat-slider');
+  const navigations = document.querySelectorAll('.sub-collection-nav');
   
-  sliders.forEach(function(slider) {
-    const track = slider.querySelector('.subcat-slider__track');
-    const prev = slider.querySelector('.subcat-slider__arrow--prev');
-    const next = slider.querySelector('.subcat-slider__arrow--next');
+  navigations.forEach(function(nav) {
+    const track = nav.querySelector('.sub-collection-nav__track');
+    const prev = nav.querySelector('.sub-collection-nav__arrow--prev');
+    const next = nav.querySelector('.sub-collection-nav__arrow--next');
     
     if (!track || !prev || !next) return;
 
     const step = () => {
-      const card = track.querySelector('.subcat-card');
+      const card = track.querySelector('.sub-collection-card');
       if (card) {
         const cardW = card.getBoundingClientRect().width;
         const styles = getComputedStyle(track);
