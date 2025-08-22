@@ -1,44 +1,103 @@
+{%- assign is_collection = false -%}
+{%- if template.name == 'collection' and collection != blank -%}
+  {%- assign is_collection = true -%}
+{%- endif -%}
+
+{%- comment -%} Get general FAQs from shop metafields {%- endcomment -%}
+{%- assign general_faqs = shop.metafields.custom.general_store_faq.value -%}
+
+<style>
+/* CSS aynen bırakıldı veya kısaltılabilir */
+</style>
+
+<section class="faq-section page-width">
+  <h2 class="faq-section__title">FAQs</h2>
+
+  <div class="faq-groups">
+
+    {%- comment -%} Collection-specific FAQ groups {%- endcomment -%}
+    {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
+      {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
+        {%- if faq_group.items.value != blank -%}
+          <article class="faq-group">
+            {%- if faq_group.title != blank -%}
+              <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+            {%- endif -%}
+            <div class="faq-accordion">
+              {%- for item in faq_group.items.value -%}
+                <details class="faq-item" {%- if forloop.first -%}open{%- endif -%}>
+                  <summary class="faq-question">
+                    <span>{{ item.question }}</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-answer rte">
+                    {{ item.answer | metafield_tag }}
+                  </div>
+                </details>
+              {%- endfor -%}
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- comment -%} Determine if general FAQs should be shown {%- endcomment -%}
+    {%- assign show_general_faqs = false -%}
+    {%- if is_collection == false -%}
+      {%- assign show_general_faqs = true -%}
+    {%- elsif is_collection and collection.metafields.custom.faq_groups.value == blank -%}
+      {%- assign show_general_faqs = true -%}
+    {%- endif -%}
+
+    {%- comment -%} Show general FAQs {%- endcomment -%}
+    {%- if show_general_faqs and general_faqs != blank -%}
+      {%- for faq_group in general_faqs -%}
+        {%- if faq_group.items.value != blank -%}
+          <article class="faq-group">
+            {%- if faq_group.title != blank -%}
+              <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+            {%- endif -%}
+            <div class="faq-accordion">
+              {%- for item in faq_group.items.value -%}
+                <details class="faq-item" {%- if forloop.first -%}open{%- endif -%}>
+                  <summary class="faq-question">
+                    <span>{{ item.question }}</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-answer rte">
+                    {{ item.answer | metafield_tag }}
+                  </div>
+                </details>
+              {%- endfor -%}
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- comment -%} Empty state {%- endcomment -%}
+    {%- if is_collection == true and collection.metafields.custom.faq_groups.value == blank and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No FAQ data found for this collection.</p>
+      </div>
+    {%- elsif is_collection == false and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No general FAQ data found.</p>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
 {% schema %}
 {
-  "name": "FAQ Section",
-  "settings": [
-    {
-      "type": "metaobject",
-      "id": "faq_metaobject",
-      "label": "FAQ Metaobject",
-      "metaobject_type": "faq_group"
-    },
-    {
-      "type": "number",
-      "id": "limit",
-      "label": "Limit per group",
-      "default": 10
-    }
-  ],
+  "name": "FAQ",
+  "tag": "section",
   "presets": [
-    {
-      "name": "FAQ Section"
-    }
-  ]
+    { "name": "FAQ" }
+  ],
+  "enabled_on": {
+    "templates": ["index", "collection", "page", "product"]
+  }
 }
 {% endschema %}
-
-{% if section.settings.faq_metaobject %}
-  {% assign faq_group = section.settings.faq_metaobject %}
-
-  <div class="faq-section">
-    <h2 class="faq-title">{{ faq_group.title }}</h2>
-    <div class="faq-items">
-      {% for item in faq_group.items limit: section.settings.limit %}
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            {{ item.question }}
-          </button>
-          <div class="faq-answer">
-            {{ item.answer }}
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-{% endif %}
