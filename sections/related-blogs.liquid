@@ -1,0 +1,114 @@
+<section class="related-blogs page-width">
+  {%- if collection.metafields.custom.related_blogs != blank -%}
+    <h2 class="related-blogs__title">Related Articles</h2>
+    <div class="related-blogs__grid">
+      {%- for blog_post in collection.metafields.custom.related_blogs.value -%}
+        <article class="related-blogs__card">
+          {%- if blog_post.image != blank -%}
+            <a href="{{ blog_post.article.url }}" class="related-blogs__image-link">
+              <img 
+                src="{{ blog_post.image | image_url: width: 600 }}" 
+                alt="{{ blog_post.title | escape }}" 
+                class="related-blogs__image" 
+                loading="lazy"
+              >
+            </a>
+          {%- endif -%}
+
+          <div class="related-blogs__content">
+            <h3 class="related-blogs__heading">
+              <a href="{{ blog_post.article.url }}">{{ blog_post.title }}</a>
+            </h3>
+            {%- if blog_post.excerpt != blank -%}
+              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
+            {%- endif -%}
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="related-blogs__empty">
+      <p>No related blog posts found for this collection.</p>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Related Blog Posts",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Related Articles"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Related Blog Posts"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
+  }
+}
+{% endschema %}
+
+<style>
+.related-blogs {
+  margin: 4rem 0;
+}
+.related-blogs__title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.related-blogs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+.related-blogs__card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.related-blogs__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.related-blogs__image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.related-blogs__content {
+  padding: 1.25rem;
+}
+.related-blogs__heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+.related-blogs__heading a {
+  text-decoration: none;
+  color: inherit;
+}
+.related-blogs__excerpt {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+.related-blogs__empty {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+  padding: 2rem;
+}
+</style>
