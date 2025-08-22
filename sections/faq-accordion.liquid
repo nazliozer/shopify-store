@@ -2,19 +2,6 @@
 {%- if template.name == 'collection' and collection != blank -%}
   {%- assign is_collection = true -%}
 {%- endif -%}
-{%- assign groups = '' | split: '|' -%}
-
-{%- comment -%} a) Section setting: "General Store FAQ" gibi global seçilen grup {%- endcomment -%}
-{%- if section.settings.faq_group != blank -%}
-  {%- assign groups = groups | concat: section.settings.faq_group | uniq -%}
-{%- endif -%}
-
-{%- comment -%} b) Koleksiyona bağlı gruplar (varsa) {%- endcomment -%}
-{%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
-  {%- for g in collection.metafields.custom.faq_groups.value -%}
-    {%- assign groups = groups | concat: g | uniq -%}
-  {%- endfor -%}
-{%- endif -%}
 
 <section class="faq-section page-width">
   <h2 class="faq-section__title">
@@ -26,38 +13,66 @@
   {%- endif -%}
 
   <div class="faq-groups">
-    {%- if groups != blank -%}
-      {%- for group in groups -%}
-        {%- comment -%} FAQ group metafield'ını al {%- endcomment -%}
-        {%- assign faq_group_metafield = group | metafield_tag -%}
-        {%- if faq_group_metafield != blank -%}
-          {%- assign items = faq_group_metafield.items.value -%}
-          {%- if items != blank -%}
-            <article class="faq-group">
-              {%- if faq_group_metafield.title != blank and section.settings.show_group_titles -%}
-                <h3 class="faq-group__title">{{ faq_group_metafield.title }}</h3>
-              {%- endif -%}
-
-              <div class="faq-accordion">
-                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
-                {%- for item in items limit: limit -%}
-                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
-                    <summary class="faq-question">
-                      <span>{{ item.question }}</span>
-                      <span class="faq-icon" aria-hidden="true">+</span>
-                    </summary>
-                    <div class="faq-answer rte">
-                      {{ item.answer | metafield_tag }}
-                    </div>
-                  </details>
-                {%- endfor -%}
-              </div>
-            </article>
+    {%- comment -%} General Store FAQ from section settings {%- endcomment -%}
+    {%- if section.settings.faq_group != blank -%}
+      {%- assign faq_group = section.settings.faq_group -%}
+      {%- if faq_group.items.value != blank -%}
+        <article class="faq-group">
+          {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+            <h3 class="faq-group__title">{{ faq_group.title }}</h3>
           {%- endif -%}
+
+          <div class="faq-accordion">
+            {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+            {%- for item in faq_group.items.value limit: limit -%}
+              <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                <summary class="faq-question">
+                  <span>{{ item.question }}</span>
+                  <span class="faq-icon" aria-hidden="true">+</span>
+                </summary>
+                <div class="faq-answer rte">
+                  {{ item.answer | metafield_tag }}
+                </div>
+              </details>
+            {%- endfor -%}
+          </div>
+        </article>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Collection-specific FAQ groups (if any) {%- endcomment -%}
+    {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
+      {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
+        {%- if faq_group.items.value != blank -%}
+          <article class="faq-group">
+            {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+              <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+            {%- endif -%}
+
+            <div class="faq-accordion">
+              {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+              {%- for item in faq_group.items.value limit: limit -%}
+                <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                  <summary class="faq-question">
+                    <span>{{ item.question }}</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-answer rte">
+                    {{ item.answer | metafield_tag }}
+                  </div>
+                </details>
+              {%- endfor -%}
+            </div>
+          </article>
         {%- endif -%}
       {%- endfor -%}
-    {%- else -%}
-      <p>No FAQ data found.</p>
+    {%- endif -%}
+
+    {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
+    {%- if section.settings.faq_group == blank -%}
+      {%- if is_collection == false -%}
+        <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </section>

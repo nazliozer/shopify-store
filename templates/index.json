@@ -91,7 +91,7 @@
       "type": "faq-accordion",
       "name": "FAQ (General + Collection)",
       "settings": {
-        "global_faq_group": "faq-group-whypeyqk",
+        "faq_group": "faq-group-whypeyqk",
         "heading": "Frequently Asked Questions",
         "subtext": "sub",
         "show_group_titles": true,
