@@ -9,21 +9,21 @@
 {%- assign target_collection = section.settings.featured_collection | default: collection -%}
 
 {%- if target_collection -%}
+  {%- comment -%} Debug: Check what we have {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+      <strong>Debug Info:</strong><br>
+      Target Collection: {{ target_collection.title | json }}<br>
+      Target Collection Handle: {{ target_collection.handle | json }}<br>
+      Metaobject Field: {{ target_collection.metafields.custom.category_slider | json }}<br>
+      Metaobject Value: {{ target_collection.metafields.custom.category_slider.value | json }}<br>
+      Metaobject Type: {{ target_collection.metafields.custom.category_slider.type | json }}<br>
+    </div>
+  {%- endif -%}
+  
   {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
     {%- assign cats = entries -%}
-    {%- comment -%} Debug: Check what we have {%- endcomment -%}
-    {%- if request.design_mode -%}
-      <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
-        <strong>Debug Info:</strong><br>
-        Entries Count: {{ entries.size }}<br>
-        First Entry: {{ entries.first | json }}<br>
-        First Entry Type: {{ entries.first.object_type | json }}<br>
-        {%- if entries.first.collection -%}
-          First Collection: {{ entries.first.collection | json }}<br>
-        {%- endif -%}
-      </div>
-    {%- endif -%}
     
     {%- comment -%} Handle different data structures {%- endcomment -%}
     {%- if entries.first.object_type == 'collection' -%}
