@@ -96,6 +96,7 @@
   gap: 2.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 /* Single post styling - don't stretch */
@@ -193,6 +194,7 @@
   .related-blogs__grid {
     grid-template-columns: 1fr;
     gap: 2rem;
+    padding: 0 1rem;
   }
   
   /* Single post on mobile */
@@ -211,6 +213,23 @@
   
   .related-blogs__image {
     height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .related-blogs {
+    margin: 1.5rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .related-blogs__grid {
+    padding: 0 0.5rem;
+    gap: 1.5rem;
+  }
+  
+  .related-blogs__title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
   }
 }
 
