@@ -1,305 +1,168 @@
-{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+FAQ (Homepage + Collection)
+- Homepage (index): sadece "General FAQ" (section settingten seçilecek)
+- Collection: "General FAQ" (section setting) + collection.metafields.custom.faq_groups (List<faq_group>)
+- Metaobjects:
+  * faq_item: fields => question (single line), answer (rich text)
+  * faq_group: fields => title (text), items (List<metaobject: faq_item>)
+{%- endcomment -%}
 
-<div class="section-{{ section.id }}-padding color-{{ section.settings.color_scheme }} gradient">
-  <div class="page-width">
-    <div class="collection-faq">
-      {%- if section.settings.heading != blank -%}
-        <div class="collection-faq__header">
-          <h2 class="collection-faq__heading {{ section.settings.heading_size }}">
-            {{ section.settings.heading }}
-          </h2>
-          {%- if section.settings.description != blank -%}
-            <p class="collection-faq__description">{{ section.settings.description }}</p>
-          {%- endif -%}
-        </div>
+{%- assign is_collection = false -%}
+{%- if template.name == 'collection' and collection -%}
+  {%- assign is_collection = true -%}
+{%- endif -%}
+{%- assign merged_groups = '' | split: '|' -%}
+
+{%- comment -%} a) Global (General FAQ) - section setting'ten {%- endcomment -%}
+{%- if section.settings.global_faq_group != blank -%}
+  {%- assign global_group = section.settings.global_faq_group -%}
+  {%- if global_group -%}
+    {%- assign merged_groups = merged_groups | push: global_group -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} b) Koleksiyon'a bağlı gruplar (varsa) {%- endcomment -%}
+{%- if is_collection -%}
+  {%- assign col_groups = collection.metafields.custom.faq_groups.value -%}
+  {%- if col_groups != blank -%}
+    {%- for g in col_groups -%}
+      {%- if g -%}
+        {%- assign merged_groups = merged_groups | push: g -%}
       {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
 
-      {%- comment -%} First try to get FAQs from collection's faq_groups metaobject field {%- endcomment -%}
-      {%- assign collection_faqs = collection.metafields.custom.faq_groups.value.faq_items.value | default: collection.metafields.custom.faq_groups.value.faq_items -%}
-      
-      {%- if collection_faqs != blank -%}
-        <div class="collection-faq__accordion">
-          {%- for faq_item in collection_faqs -%}
-            <div class="collection-faq__item">
-              <button 
-                class="collection-faq__question" 
-                aria-expanded="false"
-                aria-controls="faq-answer-{{ section.id }}-{{ forloop.index }}"
-                onclick="toggleFAQ(this, 'faq-answer-{{ section.id }}-{{ forloop.index }}')"
-              >
-                <span>{{ faq_item.question | default: 'Frequently Asked Question' }}</span>
-                <svg class="collection-faq__question-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 10l5 5 5-5z"/>
-                </svg>
-              </button>
-              <div 
-                class="collection-faq__answer" 
-                id="faq-answer-{{ section.id }}-{{ forloop.index }}"
-                aria-hidden="true"
-              >
-                <div class="collection-faq__answer-content">
-                  {{ faq_item.answer | default: 'Answer will be displayed here.' }}
-                </div>
-              </div>
-            </div>
-          {%- endfor -%}
-        </div>
-      {%- elsif section.settings.faq_items != blank -%}
-        {%- comment -%} Fallback to manually selected FAQ items if no collection FAQs {%- endcomment -%}
-        <div class="collection-faq__accordion">
-          {%- for faq_item in section.settings.faq_items -%}
-            <div class="collection-faq__item">
-              <button 
-                class="collection-faq__question" 
-                aria-expanded="false"
-                aria-controls="faq-answer-{{ section.id }}-{{ forloop.index }}"
-                onclick="toggleFAQ(this, 'faq-answer-{{ section.id }}-{{ forloop.index }}')"
-              >
-                <span>{{ faq_item.question | default: 'Frequently Asked Question' }}</span>
-                <svg class="collection-faq__question-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 10l5 5 5-5z"/>
-                </svg>
-              </button>
-              <div 
-                class="collection-faq__answer" 
-                id="faq-answer-{{ section.id }}-{{ forloop.index }}"
-                aria-hidden="true"
-              >
-                <div class="collection-faq__answer-content">
-                  {{ faq_item.answer | default: 'Answer will be displayed here.' }}
-                </div>
-              </div>
-            </div>
-          {%- endfor -%}
-        </div>
+{%- comment -%} c) Aynı grup iki kez seçildiyse uniq yap (handle üzerinden) {%- endcomment -%}
+{%- assign uniq = '' | split: '|' -%}
+{%- assign seen = '' | split: '|' -%}
+{%- for g in merged_groups -%}
+  {%- assign h = g.handle | default: g.id -%}
+  {%- unless seen contains h -%}
+    {%- assign uniq = uniq | push: g -%}
+    {%- assign seen = seen | push: h -%}
+  {%- endunless -%}
+{%- endfor -%}
+
+{%- if uniq.size > 0 -%}
+<section class="faq-section page-width">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="faq-section__title">{{ section.settings.heading }}</h2>
+  {%- else -%}
+    <h2 class="faq-section__title">
+      {%- if is_collection -%}
+        {{ 'Frequently Asked Questions' }}
       {%- else -%}
-        <div class="collection-faq__empty-state">
-          <p>No FAQ items found for this collection. Please add FAQ items to the collection's faq_groups metaobject field or select FAQ items in the section settings.</p>
-        </div>
+        {{ 'General FAQs' }}
       {%- endif -%}
-    </div>
+    </h2>
+  {%- endif -%}
+
+  {%- if section.settings.subtext != blank -%}
+    <p class="faq-section__subtitle">{{ section.settings.subtext }}</p>
+  {%- endif -%}
+
+  <div class="faq-groups">
+    {%- for group in uniq -%}
+      {%- assign items = group.items.value -%}
+      {%- if items != blank -%}
+        <article class="faq-group">
+          {%- if group.title != blank and section.settings.show_group_titles -%}
+            <h3 class="faq-group__title">{{ group.title }}</h3>
+          {%- endif -%}
+
+          <div class="faq-accordion">
+            {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+            {%- for item in items limit: limit -%}
+              <details class="faq-item" {%- if section.settings.open_first and forloop.first and forloop.parentloop.first -%}open{%- endif -%}>
+                <summary class="faq-question">
+                  <span>{{ item.question }}</span>
+                  <span class="faq-icon" aria-hidden="true">+</span>
+                </summary>
+                <div class="faq-answer rte">
+                  {{ item.answer | metafield_tag }}
+                </div>
+              </details>
+            {%- endfor -%}
+          </div>
+        </article>
+      {%- endif -%}
+    {%- endfor -%}
   </div>
-</div>
-
-<script>
-function toggleFAQ(button, answerId) {
-  const answer = document.getElementById(answerId);
-  const isExpanded = button.getAttribute('aria-expanded') === 'true';
-  
-  // Close all other FAQ items
-  const allQuestions = document.querySelectorAll('.collection-faq__question');
-  const allAnswers = document.querySelectorAll('.collection-faq__answer');
-  
-  allQuestions.forEach(q => q.setAttribute('aria-expanded', 'false'));
-  allAnswers.forEach(a => a.setAttribute('aria-hidden', 'true'));
-  
-  // Toggle current FAQ item
-  if (!isExpanded) {
-    button.setAttribute('aria-expanded', 'true');
-    answer.setAttribute('aria-hidden', 'false');
-  }
-}
-</script>
-
-{%- style -%}
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
-  }
-
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
-  }
-
-  .collection-faq {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .collection-faq__header {
-    text-align: center;
-    margin-bottom: 4rem;
-  }
-
-  .collection-faq__heading {
-    margin: 0 0 1.5rem 0;
-    color: rgb(var(--color-foreground));
-    font-size: 2.5rem;
-  }
-
-  .collection-faq__description {
-    margin: 0;
-    color: rgba(var(--color-foreground), 0.75);
-    font-size: 1.125rem;
-    line-height: 1.6;
-  }
-
-  .collection-faq__accordion {
-    border: 1px solid rgba(var(--color-foreground), 0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    background: rgb(var(--color-background));
-  }
-
-  .collection-faq__item {
-    border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
-  }
-
-  .collection-faq__item:last-child {
-    border-bottom: none;
-  }
-
-  .collection-faq__question {
-    width: 100%;
-    padding: 2rem;
-    background: rgb(var(--color-background));
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.2s ease;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: rgb(var(--color-foreground));
-    font-family: var(--font-body-family);
-    font-style: var(--font-body-style);
-    line-height: 1.4;
-  }
-
-  .collection-faq__question:hover {
-    background: rgba(var(--color-foreground), 0.04);
-  }
-
-  .collection-faq__question[aria-expanded="true"] {
-    background: rgba(var(--color-foreground), 0.04);
-    color: rgb(var(--color-foreground));
-  }
-
-  .collection-faq__question-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
-    margin-left: 1.5rem;
-    color: rgb(var(--color-foreground));
-  }
-
-  .collection-faq_question[aria-expanded="true"] .collection-faq_question-icon {
-    transform: rotate(180deg);
-  }
-
-  .collection-faq__answer {
-    padding: 0 2rem;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    background: rgb(var(--color-background));
-  }
-
-  .collection-faq__answer[aria-hidden="false"] {
-    padding: 2rem;
-    max-height: 600px;
-  }
-
-  .collection-faq__answer-content {
-    margin: 0;
-    line-height: 1.7;
-    color: rgb(var(--color-foreground));
-    font-family: var(--font-body-family);
-    font-style: var(--font-body-style);
-    font-size: 1.125rem;
-  }
-
-  .collection-faq__empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: rgba(var(--color-foreground), 0.6);
-    font-family: var(--font-body-family);
-    font-style: var(--font-body-style);
-    font-size: 1.125rem;
-  }
-{%- endstyle -%}
+</section>
+{%- endif -%}
 
 {% schema %}
 {
-  "name": "Collection FAQ",
+  "name": "FAQ",
   "tag": "section",
-  "class": "section",
+  "class": "section faq-section",
   "settings": [
     {
-      "type": "text",
+      "type": "metaobject",
+      "id": "global_faq_group",
+      "label": "General FAQ group (shown on Home and combined on Collections)",
+      "metaobject_type": "faq_group"
+    },
+    {
+      "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Frequently Asked Questions"
+      "default": "FAQ"
     },
     {
-      "type": "textarea",
-      "id": "description",
-      "label": "Description",
-      "default": "Find answers to common questions about this collection."
+      "type": "text",
+      "id": "subtext",
+      "label": "Subheading / helper text",
+      "default": "sub"
     },
     {
-      "type": "select",
-      "id": "heading_size",
-      "options": [
-        {
-          "value": "h2",
-          "label": "Small"
-        },
-        {
-          "value": "h1",
-          "label": "Medium"
-        },
-        {
-          "value": "h0",
-          "label": "Large"
-        }
-      ],
-      "default": "h1",
-      "label": "Heading size"
+      "type": "checkbox",
+      "id": "show_group_titles",
+      "label": "Show group titles",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first",
+      "label": "Open first item by default",
+      "default": true
     },
     {
       "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Padding top",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Padding bottom",
-      "default": 36
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "Color scheme",
-      "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "FAQ Items"
-    },
-    {
-      "type": "metaobject_list",
-      "id": "faq_items",
-      "label": "FAQ Items",
-      "info": "Add FAQ items with questions and answers",
-      "metaobject_type": "faq_item"
+      "id": "limit_per_group",
+      "label": "Limit per group",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 10
     }
   ],
+  "presets": [
+    { "name": "FAQ (General + Collection)" }
+  ],
+  "enabled_on": {
+    "templates": ["index", "collection"]
+  }
 }
 {% endschema %}
+
+{% stylesheet %}
+.faq-section{margin:3rem auto;max-width:900px}
+.faq-section__title{margin:0 0 .5rem;text-align:center;font-weight:700;font-size:clamp(1.4rem,1.1rem+1.2vw,2rem)}
+.faq-section__subtitle{text-align:center;margin:0 0 1.5rem;color:#666}
+
+.faq-groups{display:flex;flex-direction:column;gap:1.75rem}
+.faq-group__title{margin:0 0 .5rem;font-size:1.1rem;opacity:.85}
+
+.faq-accordion{display:flex;flex-direction:column;gap:.75rem}
+.faq-item{border:1px solid #e6e6e6;border-radius:10px;background:#fff;padding:.85rem 1rem;transition:box-shadow .18s ease}
+.faq-item[open]{box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.faq-question{cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.faq-icon{font-size:1.25rem;line-height:1;transition:transform .15s}
+.faq-item[open] .faq-icon{transform:rotate(45deg)}
+.faq-answer{margin-top:.6rem;color:#444;font-size:.98rem;line-height:1.6}
+@media (max-width:640px){
+  .faq-section{margin:2.25rem auto}
+}
+{% endstylesheet %}
