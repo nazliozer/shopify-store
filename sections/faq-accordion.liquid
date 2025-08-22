@@ -1,148 +1,76 @@
-{%- comment -%}
-FAQ (Homepage + Collection)
-- Homepage (index): sadece "General FAQ" (section settingten seçilecek)
-- Collection: "General FAQ" (section setting) + collection.metafields.custom.faq_groups (List<faq_group>)
-- Metaobjects:
-  * faq_item: fields => question (single line), answer (rich text)
-  * faq_group: fields => title (text), items (List<metaobject: faq_item>)
-{%- endcomment -%}
-
 {%- assign is_collection = false -%}
-{%- if template.name == 'collection' and collection -%}
+{%- if template.name == 'collection' and collection != blank -%}
   {%- assign is_collection = true -%}
 {%- endif -%}
-{%- assign merged_groups = '' | split: '|' -%}
+{%- assign groups = '' | split: '|' -%}
 
-{%- comment -%} a) Global (General FAQ) - section setting'ten {%- endcomment -%}
-{%- if section.settings.global_faq_group != blank -%}
-  {%- assign global_group = section.settings.global_faq_group -%}
-  {%- if global_group -%}
-    {%- assign merged_groups = merged_groups | concat: global_group | uniq -%}
-  {%- endif -%}
+{%- comment -%} a) Section setting: "General Store FAQ" gibi global seçilen grup {%- endcomment -%}
+{%- if section.settings.faq_group != blank -%}
+  {%- assign groups = groups | concat: section.settings.faq_group | uniq -%}
 {%- endif -%}
 
-{%- comment -%} b) Koleksiyon'a bağlı gruplar (varsa) {%- endcomment -%}
-{%- if is_collection -%}
-  {%- assign col_groups = collection.metafields.custom.faq_groups.value -%}
-  {%- if col_groups != blank -%}
-    {%- for g in col_groups -%}
-      {%- if g -%}
-        {%- assign merged_groups = merged_groups | concat: g | uniq -%}
-      {%- endif -%}
-    {%- endfor -%}
-  {%- endif -%}
+{%- comment -%} b) Koleksiyona bağlı gruplar (varsa) {%- endcomment -%}
+{%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
+  {%- for g in collection.metafields.custom.faq_groups.value -%}
+    {%- assign groups = groups | concat: g | uniq -%}
+  {%- endfor -%}
 {%- endif -%}
 
-{%- comment -%} c) Aynı grup iki kez seçildiyse uniq yap (handle üzerinden) {%- endcomment -%}
-{%- assign uniq_groups = '' | split: '|' -%}
-{%- assign seen_handles = '' | split: '|' -%}
-{%- for g in merged_groups -%}
-  {%- assign h = g.handle | default: g.id -%}
-  {%- unless seen_handles contains h -%}
-    {%- assign uniq_groups = uniq_groups | concat: g | uniq -%}
-    {%- assign seen_handles = seen_handles | concat: h | uniq -%}
-  {%- endunless -%}
-{%- endfor -%}
-
-{%- comment -%} DEBUG: Veri kontrolü {%- endcomment -%}
-<!-- DEBUG INFO:
-  is_collection: {{ is_collection }}
-  global_faq_group: {{ section.settings.global_faq_group }}
-  merged_groups size: {{ merged_groups.size }}
-  uniq_groups size: {{ uniq_groups.size }}
-  template: {{ template.name }}
-  collection: {{ collection.handle | default: 'none' }}
--->
-
-{%- comment -%} Test verisi ekle (geliştirme sırasında) {%- endcomment -%}
-{%- assign has_test_data = true -%}
-
-{%- if uniq_groups.size > 0 or has_test_data -%}
 <section class="faq-section page-width">
-  {%- if section.settings.heading != blank -%}
-    <h2 class="faq-section__title">{{ section.settings.heading }}</h2>
-  {%- else -%}
-    <h2 class="faq-section__title">
-      {%- if is_collection -%}
-        {{ 'Frequently Asked Questions' }}
-      {%- else -%}
-        {{ 'General FAQs' }}
-      {%- endif -%}
-    </h2>
-  {%- endif -%}
+  <h2 class="faq-section__title">
+    {{ section.settings.heading | default: 'Frequently Asked Questions' }}
+  </h2>
 
   {%- if section.settings.subtext != blank -%}
     <p class="faq-section__subtitle">{{ section.settings.subtext }}</p>
   {%- endif -%}
 
   <div class="faq-groups">
-    {%- comment -%} Gerçek veri varsa göster {%- endcomment -%}
-    {%- for group in uniq_groups -%}
-      {%- assign items = group.items.value -%}
-      {%- if items != blank -%}
-        <article class="faq-group">
-          {%- if group.title != blank and section.settings.show_group_titles -%}
-            <h3 class="faq-group__title">{{ group.title }}</h3>
+    {%- if groups != blank -%}
+      {%- for group in groups -%}
+        {%- comment -%} FAQ group metafield'ını al {%- endcomment -%}
+        {%- assign faq_group_metafield = group | metafield_tag -%}
+        {%- if faq_group_metafield != blank -%}
+          {%- assign items = faq_group_metafield.items.value -%}
+          {%- if items != blank -%}
+            <article class="faq-group">
+              {%- if faq_group_metafield.title != blank and section.settings.show_group_titles -%}
+                <h3 class="faq-group__title">{{ faq_group_metafield.title }}</h3>
+              {%- endif -%}
+
+              <div class="faq-accordion">
+                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+                {%- for item in items limit: limit -%}
+                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                    <summary class="faq-question">
+                      <span>{{ item.question }}</span>
+                      <span class="faq-icon" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer rte">
+                      {{ item.answer | metafield_tag }}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+            </article>
           {%- endif -%}
-
-          <div class="faq-accordion">
-            {%- assign limit = section.settings.limit_per_group | default: 50 -%}
-            {%- for item in items limit: limit -%}
-              <details class="faq-item" {%- if section.settings.open_first and forloop.first and forloop.parentloop.first -%}open{%- endif -%}>
-                <summary class="faq-question">
-                  <span>{{ item.question }}</span>
-                  <span class="faq-icon" aria-hidden="true">+</span>
-                </summary>
-                <div class="faq-answer rte">
-                  {{ item.answer | metafield_tag }}
-                </div>
-              </details>
-            {%- endfor -%}
-          </div>
-        </article>
-      {%- endif -%}
-    {%- endfor -%}
-
-    {%- comment -%} Test verisi (geliştirme sırasında) {%- endcomment -%}
-    {%- if uniq_groups.size == 0 -%}
-      <article class="faq-group">
-        <h3 class="faq-group__title">Test FAQ Group</h3>
-        <div class="faq-accordion">
-          <details class="faq-item" open>
-            <summary class="faq-question">
-              <span>Bu bir test sorusu mu?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </summary>
-            <div class="faq-answer rte">
-              <p>Evet, bu bir test sorusudur. FAQ section'ı çalışıyor!</p>
-            </div>
-          </details>
-          <details class="faq-item">
-            <summary class="faq-question">
-              <span>FAQ section'ı nasıl çalışır?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </summary>
-            <div class="faq-answer rte">
-              <p>FAQ section'ı section settings'den "General FAQ group" seçildiğinde veya collection metafields'de faq_groups tanımlandığında çalışır.</p>
-            </div>
-          </details>
-        </div>
-      </article>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- else -%}
+      <p>No FAQ data found.</p>
     {%- endif -%}
   </div>
 </section>
-{%- endif -%}
 
 {% schema %}
 {
   "name": "FAQ",
   "tag": "section",
-  "class": "section faq-section",
   "settings": [
     {
       "type": "metaobject",
-      "id": "global_faq_group",
-      "label": "General FAQ group (shown on Home and combined on Collections)",
+      "id": "faq_group",
+      "label": "Select FAQ group",
       "metaobject_type": "faq_group"
     },
     {
@@ -154,8 +82,7 @@ FAQ (Homepage + Collection)
     {
       "type": "text",
       "id": "subtext",
-      "label": "Subheading / helper text",
-      "default": "text"
+      "label": "Subheading / helper text"
     },
     {
       "type": "checkbox",
@@ -187,23 +114,3 @@ FAQ (Homepage + Collection)
   }
 }
 {% endschema %}
-
-{% stylesheet %}
-.faq-section{margin:3rem auto;max-width:900px}
-.faq-section__title{margin:0 0 .5rem;text-align:center;font-weight:700;font-size:clamp(1.4rem,1.1rem+1.2vw,2rem)}
-.faq-section__subtitle{text-align:center;margin:0 0 1.5rem;color:#666}
-
-.faq-groups{display:flex;flex-direction:column;gap:1.75rem}
-.faq-group__title{margin:0 0 .5rem;font-size:1.1rem;opacity:.85}
-
-.faq-accordion{display:flex;flex-direction:column;gap:.75rem}
-.faq-item{border:1px solid #e6e6e6;border-radius:10px;background:#fff;padding:.85rem 1rem;transition:box-shadow .18s ease}
-.faq-item[open]{box-shadow:0 6px 18px rgba(0,0,0,.06)}
-.faq-question{cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
-.faq-icon{font-size:1.25rem;line-height:1;transition:transform .15s}
-.faq-item[open] .faq-icon{transform:rotate(45deg)}
-.faq-answer{margin-top:.6rem;color:#444;font-size:.98rem;line-height:1.6}
-@media (max-width:640px){
-  .faq-section{margin:2.25rem auto}
-}
-{% endstylesheet %}
