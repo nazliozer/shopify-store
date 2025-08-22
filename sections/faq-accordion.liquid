@@ -1,83 +1,44 @@
-{%- assign selected_faqs = nil -%}
-
-{%- if section.settings.faq_metaobject != blank -%}
-  {%- assign selected_faqs = section.settings.faq_metaobject -%}
-{%- endif -%}
-
-<section class="faq-section page-width">
-  {%- if section.settings.heading != blank -%}
-    <h2 class="faq-section__title">{{ section.settings.heading }}</h2>
-  {%- endif -%}
-
-  <div class="faq-groups">
-    {%- if selected_faqs != blank -%}
-      {%- for faq_group in selected_faqs.value -%}
-        <article class="faq-group">
-          {%- if faq_group.title != blank and section.settings.show_group_titles -%}
-            <h3 class="faq-group__title">{{ faq_group.title }}</h3>
-          {%- endif -%}
-
-          <div class="faq-accordion">
-            {%- assign limit = section.settings.limit_per_group | default: 50 -%}
-            {%- for item in faq_group.items.value limit: limit -%}
-              <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
-                <summary class="faq-question">
-                  <span>{{ item.question }}</span>
-                  <span class="faq-icon">+</span>
-                </summary>
-                <div class="faq-answer rte">
-                  {{ item.answer | metafield_tag }}
-                </div>
-              </details>
-            {%- endfor -%}
-          </div>
-        </article>
-      {%- endfor -%}
-    {%- else -%}
-      <div class="faq-empty"><p>No FAQ database selected.</p></div>
-    {%- endif -%}
-  </div>
-</section>
-
 {% schema %}
 {
   "name": "FAQ Section",
   "settings": [
     {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_group_titles",
-      "label": "Show group titles",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "open_first",
-      "label": "Open first item open by default",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "limit_per_group",
-      "label": "Limit per group",
-      "min": 1,
-      "max": 50,
-      "step": 1,
-      "default": 10
-    },
-    {
       "type": "metaobject",
       "id": "faq_metaobject",
       "label": "FAQ Metaobject",
-      "metaobject_type": "faq_groups" 
+      "metaobject_type": "faq_group"
+    },
+    {
+      "type": "number",
+      "id": "limit",
+      "label": "Limit per group",
+      "default": 10
     }
   ],
   "presets": [
-    { "name": "FAQ Section" }
+    {
+      "name": "FAQ Section"
+    }
   ]
 }
 {% endschema %}
+
+{% if section.settings.faq_metaobject %}
+  {% assign faq_group = section.settings.faq_metaobject %}
+
+  <div class="faq-section">
+    <h2 class="faq-title">{{ faq_group.title }}</h2>
+    <div class="faq-items">
+      {% for item in faq_group.items limit: section.settings.limit %}
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            {{ item.question }}
+          </button>
+          <div class="faq-answer">
+            {{ item.answer }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
