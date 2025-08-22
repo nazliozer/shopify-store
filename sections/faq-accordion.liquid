@@ -17,7 +17,7 @@ FAQ (Homepage + Collection)
 {%- if section.settings.global_faq_group != blank -%}
   {%- assign global_group = section.settings.global_faq_group -%}
   {%- if global_group -%}
-    {%- assign merged_groups = merged_groups | push: global_group -%}
+    {%- assign merged_groups = merged_groups | concat: global_group | uniq -%}
   {%- endif -%}
 {%- endif -%}
 
@@ -27,20 +27,20 @@ FAQ (Homepage + Collection)
   {%- if col_groups != blank -%}
     {%- for g in col_groups -%}
       {%- if g -%}
-        {%- assign merged_groups = merged_groups | push: g -%}
+        {%- assign merged_groups = merged_groups | concat: g | uniq -%}
       {%- endif -%}
     {%- endfor -%}
   {%- endif -%}
 {%- endif -%}
 
 {%- comment -%} c) Aynı grup iki kez seçildiyse uniq yap (handle üzerinden) {%- endcomment -%}
-{%- assign uniq = '' | split: '|' -%}
-{%- assign seen = '' | split: '|' -%}
+{%- assign uniq_groups = '' | split: '|' -%}
+{%- assign seen_handles = '' | split: '|' -%}
 {%- for g in merged_groups -%}
   {%- assign h = g.handle | default: g.id -%}
-  {%- unless seen contains h -%}
-    {%- assign uniq = uniq | push: g -%}
-    {%- assign seen = seen | push: h -%}
+  {%- unless seen_handles contains h -%}
+    {%- assign uniq_groups = uniq_groups | concat: g | uniq -%}
+    {%- assign seen_handles = seen_handles | concat: h | uniq -%}
   {%- endunless -%}
 {%- endfor -%}
 
@@ -108,7 +108,7 @@ FAQ (Homepage + Collection)
       "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "FAQ"
+      "default": "Frequently Asked Questions"
     },
     {
       "type": "text",
