@@ -1,40 +1,94 @@
 <section class="related-blogs page-width">
-  {%- if template.name == 'collection' and collection.metafields.custom.related_blogposts != blank -%}
-    {%- assign related_blogs = collection.metafields.custom.related_blogposts.value -%}
+  {%- if template.name == 'collection' -%}
+    {%- if collection.metafields.custom.related_blogposts != blank -%}
+      {%- comment -%} Show specific related blog posts from metafields {%- endcomment -%}
+      {%- assign related_blogs = collection.metafields.custom.related_blogposts.value -%}
 
-    <h2 class="related-blogs__title">
-      {{ section.settings.heading | default: 'Related Articles' }}
-    </h2>
+      <h2 class="related-blogs__title">
+        {{ section.settings.heading | default: 'Related Articles' }}
+      </h2>
 
-    <div class="related-blogs__grid">
-      {%- for blog_post in related_blogs -%}
-        <article class="related-blogs__card">
-          {%- if blog_post.image != blank -%}
-            <a href="{{ blog_post.url }}" class="related-blogs__image-link">
-              <img 
-                src="{{ blog_post.image | image_url: width: 600 }}" 
-                alt="{{ blog_post.title | escape }}" 
-                class="related-blogs__image" 
-                loading="lazy"
-              >
-            </a>
-          {%- endif -%}
-
-          <div class="related-blogs__content">
-            <h3 class="related-blogs__heading">
-              <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
-            </h3>
-            {%- if blog_post.excerpt != blank -%}
-              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
+      <div class="related-blogs__grid">
+        {%- for blog_post in related_blogs -%}
+          <article class="related-blogs__card">
+            {%- if blog_post.image != blank -%}
+              <a href="{{ blog_post.url }}" class="related-blogs__image-link">
+                <img 
+                  src="{{ blog_post.image | image_url: width: 600 }}" 
+                  alt="{{ blog_post.title | escape }}" 
+                  class="related-blogs__image" 
+                  loading="lazy"
+                >
+              </a>
             {%- endif -%}
-          </div>
-        </article>
+
+            <div class="related-blogs__content">
+              <h3 class="related-blogs__heading">
+                <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
+              </h3>
+              {%- if blog_post.excerpt != blank -%}
+                <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
+              {%- endif -%}
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+    {%- elsif collection.handle == 'all' -%}
+      {%- comment -%} Show all blog posts from all blogs for the "all" collection {%- endcomment -%}
+      {%- assign articles_count = 0 -%}
+      {%- for blog in blogs -%}
+        {%- assign articles_count = articles_count | plus: blog.articles.size -%}
       {%- endfor -%}
-    </div>
-  {%- else -%}
-    <div class="related-blogs__empty">
-      <p>No related blog posts found for this collection.</p>
-    </div>
+      
+      {%- if articles_count > 0 -%}
+        <h2 class="related-blogs__title">
+          {{ section.settings.heading | default: 'Related Articles' }}
+        </h2>
+
+        <div class="related-blogs__grid">
+          {%- assign displayed_count = 0 -%}
+          {%- assign max_posts = section.settings.post_limit | default: 6 -%}
+          {%- for blog in blogs -%}
+            {%- if displayed_count < max_posts -%}
+              {%- for blog_post in blog.articles -%}
+                {%- if displayed_count < max_posts -%}
+                  <article class="related-blogs__card">
+                    {%- if blog_post.image != blank -%}
+                      <a href="{{ blog_post.url }}" class="related-blogs__image-link">
+                        <img 
+                          src="{{ blog_post.image | image_url: width: 600 }}" 
+                          alt="{{ blog_post.title | escape }}" 
+                          class="related-blogs__image" 
+                          loading="lazy"
+                        >
+                      </a>
+                    {%- endif -%}
+
+                    <div class="related-blogs__content">
+                      <h3 class="related-blogs__heading">
+                        <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
+                      </h3>
+                      {%- if blog_post.excerpt != blank -%}
+                        <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
+                      {%- endif -%}
+                    </div>
+                  </article>
+                  {%- assign displayed_count = displayed_count | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div class="related-blogs__empty">
+          <p>No blog posts found.</p>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="related-blogs__empty">
+        <p>No related blog posts found for this collection.</p>
+      </div>
+    {%- endif -%}
   {%- endif -%}
 </section>
 
@@ -48,6 +102,15 @@
       "id": "heading",
       "label": "Section Heading",
       "default": "Related Articles"
+    },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": "Number of blog posts to show",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
     }
   ],
   "presets": [
