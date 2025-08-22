@@ -3,9 +3,13 @@
   {%- assign is_collection = true -%}
 {%- endif -%}
 
+{%- comment -%} Get general FAQs from shop metafields {%- endcomment -%}
+{%- assign general_faqs = shop.metafields.custom.general_faqs.value -%}
+
 <style>
 .faq-section {
   padding: 4rem 0;
+  background: linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%);
 }
 
 .faq-section__title {
@@ -235,6 +239,8 @@ details[open] .faq-icon {
   {%- endif -%}
 
   <div class="faq-groups">
+
+
     {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
     {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
       {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
@@ -267,6 +273,76 @@ details[open] .faq-icon {
           </article>
         {%- endif -%}
       {%- endfor -%}
+    {%- endif -%}
+
+    {%- comment -%} General FAQs - show on homepage and when no collection-specific FAQs {%- endcomment -%}
+    {%- if general_faqs != blank -%}
+      {%- comment -%} Show general FAQs on non-collection pages {%- endcomment -%}
+      {%- if is_collection == false -%}
+        {%- for faq_group in general_faqs -%}
+          {%- if faq_group.items.value != blank -%}
+            <article class="faq-group">
+              {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+                <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+              {%- endif -%}
+
+              <div class="faq-accordion">
+                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+                {%- for item in faq_group.items.value limit: limit -%}
+                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                    <summary class="faq-question">
+                      <span>{{ item.question }}</span>
+                      <span class="faq-icon" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer rte">
+                      {{ item.answer | metafield_tag }}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- comment -%} Show general FAQs on collection pages when no collection-specific FAQs {%- endcomment -%}
+      {%- if is_collection == true and collection.metafields.custom.faq_groups.value == blank -%}
+        {%- for faq_group in general_faqs -%}
+          {%- if faq_group.items.value != blank -%}
+            <article class="faq-group">
+              {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+                <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+              {%- endif -%}
+
+              <div class="faq-accordion">
+                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+                {%- for item in faq_group.items.value limit: limit -%}
+                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                    <summary class="faq-question">
+                      <span>{{ item.question }}</span>
+                      <span class="faq-icon" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer rte">
+                      {{ item.answer | metafield_tag }}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
+    {%- if is_collection == true and collection.metafields.custom.faq_groups.value == blank and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No FAQ data found for this collection.</p>
+      </div>
+    {%- elsif is_collection == false and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No general FAQ data found.</p>
+      </div>
     {%- endif -%}
   </div>
 </section>
@@ -309,10 +385,10 @@ details[open] .faq-icon {
     }
   ],
   "presets": [
-    { "name": "FAQ (Collection Only)" }
+    { "name": "FAQ" }
   ],
   "enabled_on": {
-    "templates": ["collection"]
+    "templates": ["index", "collection", "page", "product"]
   }
 }
 {% endschema %}
