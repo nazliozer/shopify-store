@@ -91,12 +91,8 @@
       "type": "faq-accordion",
       "name": "FAQ (General + Collection)",
       "settings": {
-        "faq_group": "faq-group-whypeyqk",
-        "heading": "",
-        "subtext": "",
-        "show_group_titles": true,
-        "open_first": true,
-        "limit_per_group": 10
+        "faq_metaobject": "faq-group-whypeyqk",
+        "limit": 10
       }
     }
   },
