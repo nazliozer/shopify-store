@@ -16,9 +16,11 @@
           <span aria-current="page">{{ collection.title }}</span>
         </li>
       {%- elsif template.name == 'product' and product -%}
-        {%- if collection -%}
+        {%- comment -%} Try multiple ways to get collection info {%- endcomment -%}
+        {%- assign current_collection = collection | default: product.collections.first -%}
+        {%- if current_collection -%}
           <li>
-            <a href="{{ collection.url }}">{{ collection.title }}</a>
+            <a href="{{ current_collection.url }}">{{ current_collection.title }}</a>
           </li>
         {%- endif -%}
         <li>
