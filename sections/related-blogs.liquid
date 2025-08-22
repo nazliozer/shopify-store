@@ -6,6 +6,8 @@
     {%- assign related_blogs = collection.metafields.custom.related_blogs.value -%}
   {%- elsif template.name == 'index' and section.settings.homepage_blogs != blank -%}
     {%- assign related_blogs = section.settings.homepage_blogs.value -%}
+  {%- elsif template.name == 'index' and section.settings.homepage_blogs_list != blank -%}
+    {%- assign related_blogs = section.settings.homepage_blogs_list.value -%}
   {%- endif -%}
 
   {%- comment -%} Debug: Show what we have {%- endcomment -%}
@@ -15,7 +17,38 @@
       Template: {{ template.name }}<br>
       Collection blogs: {{ collection.metafields.custom.related_blogs | json }}<br>
       Homepage blogs: {{ section.settings.homepage_blogs | json }}<br>
-      Related blogs: {{ related_blogs | json }}
+      Related blogs: {{ related_blogs | json }}<br><br>
+      
+      <strong>Metaobject Details:</strong><br>
+      {%- if section.settings.homepage_blogs != blank -%}
+        Homepage blogs metaobject: {{ section.settings.homepage_blogs | json }}<br>
+        Homepage blogs type: {{ section.settings.homepage_blogs.object_type }}<br>
+        Homepage blogs fields: {{ section.settings.homepage_blogs.fields | json }}<br>
+        {%- for field in section.settings.homepage_blogs.fields -%}
+          Field: {{ field.key }} = {{ field.value | json }}<br>
+        {%- endfor -%}
+      {%- else -%}
+        Homepage blogs is blank<br>
+      {%- endif -%}
+      
+      {%- if section.settings.homepage_blogs_list != blank -%}
+        Homepage blogs list: {{ section.settings.homepage_blogs_list | json }}<br>
+        Homepage blogs list type: {{ section.settings.homepage_blogs_list.object_type }}<br>
+        Homepage blogs list count: {{ section.settings.homepage_blogs_list.value.size }}<br>
+      {%- else -%}
+        Homepage blogs list is blank<br>
+      {%- endif -%}
+      
+      {%- if collection.metafields.custom.related_blogs != blank -%}
+        Collection blogs metaobject: {{ collection.metafields.custom.related_blogs | json }}<br>
+        Collection blogs type: {{ collection.metafields.custom.related_blogs.object_type }}<br>
+        Collection blogs fields: {{ collection.metafields.custom.related_blogs.fields | json }}<br>
+        {%- for field in collection.metafields.custom.related_blogs.fields -%}
+          Field: {{ field.key }} = {{ field.value | json }}<br>
+        {%- endfor -%}
+      {%- else -%}
+        Collection blogs is blank<br>
+      {%- endif -%}
     </div>
   {%- endif -%}
 
@@ -80,6 +113,13 @@
       "label": "Homepage Blog Posts",
       "metaobject_type": "blog_post",
       "info": "Select blog posts to display on the homepage"
+    },
+    {
+      "type": "metaobject_list",
+      "id": "homepage_blogs_list",
+      "label": "Homepage Blog Posts (List)",
+      "metaobject_type": "blog_post",
+      "info": "Select multiple blog posts to display on the homepage"
     }
   ],
   "presets": [
