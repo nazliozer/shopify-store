@@ -6,6 +6,7 @@
 <style>
 .faq-section {
   padding: 4rem 0;
+  background: linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%);
 }
 
 .faq-section__title {
@@ -235,33 +236,6 @@ details[open] .faq-icon {
   {%- endif -%}
 
   <div class="faq-groups">
-    {%- comment -%} General Store FAQ from section settings - only on index/home page {%- endcomment -%}
-    {%- if template.name == 'index' and section.settings.faq_group != blank -%}
-      {%- assign faq_group = section.settings.faq_group -%}
-      {%- if faq_group.items.value != blank -%}
-        <article class="faq-group">
-          {%- if faq_group.title != blank and section.settings.show_group_titles -%}
-            <h3 class="faq-group__title">{{ faq_group.title }}</h3>
-          {%- endif -%}
-
-          <div class="faq-accordion">
-            {%- assign limit = section.settings.limit_per_group | default: 50 -%}
-            {%- for item in faq_group.items.value limit: limit -%}
-              <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
-                <summary class="faq-question">
-                  <span>{{ item.question }}</span>
-                  <span class="faq-icon" aria-hidden="true">+</span>
-                </summary>
-                <div class="faq-answer rte">
-                  {{ item.answer | metafield_tag }}
-                </div>
-              </details>
-            {%- endfor -%}
-          </div>
-        </article>
-      {%- endif -%}
-    {%- endif -%}
-
     {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
     {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
       {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
@@ -291,11 +265,7 @@ details[open] .faq-icon {
     {%- endif -%}
 
     {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
-    {%- if template.name == 'index' and section.settings.faq_group == blank -%}
-      <div class="faq-empty">
-        <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
-      </div>
-    {%- elsif is_collection and collection.metafields.custom.faq_groups.value == blank -%}
+    {%- if is_collection and collection.metafields.custom.faq_groups.value == blank -%}
       <div class="faq-empty">
         <p>No collection-specific FAQ found for this collection.</p>
       </div>
@@ -308,12 +278,6 @@ details[open] .faq-icon {
   "name": "FAQ",
   "tag": "section",
   "settings": [
-    {
-      "type": "metaobject",
-      "id": "faq_group",
-      "label": "Select FAQ group",
-      "metaobject_type": "faq_group"
-    },
     {
       "type": "inline_richtext",
       "id": "heading",
@@ -347,10 +311,10 @@ details[open] .faq-icon {
     }
   ],
   "presets": [
-    { "name": "FAQ (General + Collection)" }
+    { "name": "FAQ (Collection Only)" }
   ],
   "enabled_on": {
-    "templates": ["index", "collection"]
+    "templates": ["collection"]
   }
 }
 {% endschema %}
