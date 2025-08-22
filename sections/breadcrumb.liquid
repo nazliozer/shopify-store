@@ -16,8 +16,32 @@
           <span aria-current="page">{{ collection.title }}</span>
         </li>
       {%- elsif template.name == 'product' and product -%}
-        {%- comment -%} Try multiple ways to get collection info {%- endcomment -%}
-        {%- assign current_collection = collection | default: product.collections.first -%}
+        {%- comment -%} Try to get collection from URL first, then fallback to product collections {%- endcomment -%}
+        {%- assign current_collection = nil -%}
+        
+        {%- comment -%} Check if we came from a collection page via referrer or URL {%- endcomment -%}
+        {%- if request.referer contains '/collections/' -%}
+          {%- assign referer_path = request.referer | split: '/collections/' | last | split: '?' | first -%}
+          {%- assign referer_collection = collections[referer_path] -%}
+          {%- if referer_collection and referer_collection.products contains product -%}
+            {%- assign current_collection = referer_collection -%}
+          {%- endif -%}
+        {%- endif -%}
+        
+        {%- comment -%} If no referrer collection, try to get from current URL path {%- endcomment -%}
+        {%- if current_collection == nil and request.path contains '/collections/' -%}
+          {%- assign path_parts = request.path | split: '/collections/' | last | split: '/' | first -%}
+          {%- assign path_collection = collections[path_parts] -%}
+          {%- if path_collection and path_collection.products contains product -%}
+            {%- assign current_collection = path_collection -%}
+          {%- endif -%}
+        {%- endif -%}
+        
+        {%- comment -%} Fallback to first collection if still no match {%- endcomment -%}
+        {%- if current_collection == nil -%}
+          {%- assign current_collection = collection | default: product.collections.first -%}
+        {%- endif -%}
+        
         {%- if current_collection -%}
           <li>
             <a href="{{ current_collection.url }}">{{ current_collection.title }}</a>
