@@ -87,13 +87,13 @@
         "featured_collection": "skincare"
       }
     },
-    "faq_accordion_XTdw4G": {
+    "faq_accordion_QyyEgQ": {
       "type": "faq-accordion",
       "name": "FAQ (General + Collection)",
       "settings": {
         "global_faq_group": "faq-group-whypeyqk",
-        "heading": "Frequently Asked Questions{{ section.settings.global_faq_group.title.value }}",
-        "subtext": "",
+        "heading": "Frequently Asked Questions",
+        "subtext": "sub",
         "show_group_titles": true,
         "open_first": true,
         "limit_per_group": 10
@@ -104,6 +104,6 @@
     "image_banner",
     "featured_collection_jL7yxg",
     "sub_collection_nav_JpLwLX",
-    "faq_accordion_XTdw4G"
+    "faq_accordion_QyyEgQ"
   ]
 }
