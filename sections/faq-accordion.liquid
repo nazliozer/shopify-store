@@ -1,0 +1,305 @@
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+
+<div class="section-{{ section.id }}-padding color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width">
+    <div class="collection-faq">
+      {%- if section.settings.heading != blank -%}
+        <div class="collection-faq__header">
+          <h2 class="collection-faq__heading {{ section.settings.heading_size }}">
+            {{ section.settings.heading }}
+          </h2>
+          {%- if section.settings.description != blank -%}
+            <p class="collection-faq__description">{{ section.settings.description }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} First try to get FAQs from collection's faq_groups metaobject field {%- endcomment -%}
+      {%- assign collection_faqs = collection.metafields.custom.faq_groups.value.faq_items.value | default: collection.metafields.custom.faq_groups.value.faq_items -%}
+      
+      {%- if collection_faqs != blank -%}
+        <div class="collection-faq__accordion">
+          {%- for faq_item in collection_faqs -%}
+            <div class="collection-faq__item">
+              <button 
+                class="collection-faq__question" 
+                aria-expanded="false"
+                aria-controls="faq-answer-{{ section.id }}-{{ forloop.index }}"
+                onclick="toggleFAQ(this, 'faq-answer-{{ section.id }}-{{ forloop.index }}')"
+              >
+                <span>{{ faq_item.question | default: 'Frequently Asked Question' }}</span>
+                <svg class="collection-faq__question-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z"/>
+                </svg>
+              </button>
+              <div 
+                class="collection-faq__answer" 
+                id="faq-answer-{{ section.id }}-{{ forloop.index }}"
+                aria-hidden="true"
+              >
+                <div class="collection-faq__answer-content">
+                  {{ faq_item.answer | default: 'Answer will be displayed here.' }}
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- elsif section.settings.faq_items != blank -%}
+        {%- comment -%} Fallback to manually selected FAQ items if no collection FAQs {%- endcomment -%}
+        <div class="collection-faq__accordion">
+          {%- for faq_item in section.settings.faq_items -%}
+            <div class="collection-faq__item">
+              <button 
+                class="collection-faq__question" 
+                aria-expanded="false"
+                aria-controls="faq-answer-{{ section.id }}-{{ forloop.index }}"
+                onclick="toggleFAQ(this, 'faq-answer-{{ section.id }}-{{ forloop.index }}')"
+              >
+                <span>{{ faq_item.question | default: 'Frequently Asked Question' }}</span>
+                <svg class="collection-faq__question-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z"/>
+                </svg>
+              </button>
+              <div 
+                class="collection-faq__answer" 
+                id="faq-answer-{{ section.id }}-{{ forloop.index }}"
+                aria-hidden="true"
+              >
+                <div class="collection-faq__answer-content">
+                  {{ faq_item.answer | default: 'Answer will be displayed here.' }}
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div class="collection-faq__empty-state">
+          <p>No FAQ items found for this collection. Please add FAQ items to the collection's faq_groups metaobject field or select FAQ items in the section settings.</p>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleFAQ(button, answerId) {
+  const answer = document.getElementById(answerId);
+  const isExpanded = button.getAttribute('aria-expanded') === 'true';
+  
+  // Close all other FAQ items
+  const allQuestions = document.querySelectorAll('.collection-faq__question');
+  const allAnswers = document.querySelectorAll('.collection-faq__answer');
+  
+  allQuestions.forEach(q => q.setAttribute('aria-expanded', 'false'));
+  allAnswers.forEach(a => a.setAttribute('aria-hidden', 'true'));
+  
+  // Toggle current FAQ item
+  if (!isExpanded) {
+    button.setAttribute('aria-expanded', 'true');
+    answer.setAttribute('aria-hidden', 'false');
+  }
+}
+</script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .collection-faq {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .collection-faq__header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .collection-faq__heading {
+    margin: 0 0 1.5rem 0;
+    color: rgb(var(--color-foreground));
+    font-size: 2.5rem;
+  }
+
+  .collection-faq__description {
+    margin: 0;
+    color: rgba(var(--color-foreground), 0.75);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .collection-faq__accordion {
+    border: 1px solid rgba(var(--color-foreground), 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgb(var(--color-background));
+  }
+
+  .collection-faq__item {
+    border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+  }
+
+  .collection-faq__item:last-child {
+    border-bottom: none;
+  }
+
+  .collection-faq__question {
+    width: 100%;
+    padding: 2rem;
+    background: rgb(var(--color-background));
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgb(var(--color-foreground));
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    line-height: 1.4;
+  }
+
+  .collection-faq__question:hover {
+    background: rgba(var(--color-foreground), 0.04);
+  }
+
+  .collection-faq__question[aria-expanded="true"] {
+    background: rgba(var(--color-foreground), 0.04);
+    color: rgb(var(--color-foreground));
+  }
+
+  .collection-faq__question-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 1.5rem;
+    color: rgb(var(--color-foreground));
+  }
+
+  .collection-faq_question[aria-expanded="true"] .collection-faq_question-icon {
+    transform: rotate(180deg);
+  }
+
+  .collection-faq__answer {
+    padding: 0 2rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: rgb(var(--color-background));
+  }
+
+  .collection-faq__answer[aria-hidden="false"] {
+    padding: 2rem;
+    max-height: 600px;
+  }
+
+  .collection-faq__answer-content {
+    margin: 0;
+    line-height: 1.7;
+    color: rgb(var(--color-foreground));
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    font-size: 1.125rem;
+  }
+
+  .collection-faq__empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgba(var(--color-foreground), 0.6);
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    font-size: 1.125rem;
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Collection FAQ",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Find answers to common questions about this collection."
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "h0",
+          "label": "Large"
+        }
+      ],
+      "default": "h1",
+      "label": "Heading size"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "FAQ Items"
+    },
+    {
+      "type": "metaobject_list",
+      "id": "faq_items",
+      "label": "FAQ Items",
+      "info": "Add FAQ items with questions and answers",
+      "metaobject_type": "faq_item"
+    }
+  ],
+}
+{% endschema %}
