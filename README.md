@@ -85,4 +85,6 @@ Navigate to **Shopify Admin → Settings → Custom Data** and define the requir
 ## 📄 Deliverables
 
 - **Development store URL:** [https://nazliozer-test.myshopify.com/](https://nazliozer-test.myshopify.com/)
+-   PASSWORD: glowmart  
 - **Repository link:** [https://github.com/nazliozer/shopify-store](https://github.com/nazliozer/shopify-store)
+
