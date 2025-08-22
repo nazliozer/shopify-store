@@ -37,19 +37,17 @@
         "padding_bottom": 36
       }
     },
-    "sub_collection_nav_7aemVf": {
-      "type": "sub-collection-nav",
-      "name": "Sub-collection Navigation",
+    "breadcrumb_xDjPN9": {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
       "settings": {
-        "title": "Explore Categories",
-        "subtitle": "Discover our curated collections",
-        "featured_collection": ""
+        "show_breadcrumb": true
       }
     }
   },
   "order": [
     "banner",
-    "product-grid",
-    "sub_collection_nav_7aemVf"
+    "breadcrumb_xDjPN9",
+    "product-grid"
   ]
 }
