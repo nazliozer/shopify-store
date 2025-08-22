@@ -38,7 +38,7 @@
           <div class="sub-collection-nav__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
               {%- if c and c != blank -%}
-              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.handle | default: c.collection | split: '/' | last }}">
+              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url | default: '/collections/' | append: c.handle }}">
                 <div class="sub-collection-card__media">
                   {%- if c.image -%}
                     {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'sub-collection-card__image' }}
