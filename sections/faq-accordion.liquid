@@ -236,6 +236,19 @@ details[open] .faq-icon {
   {%- endif -%}
 
   <div class="faq-groups">
+    {%- comment -%} Debug: Show what we have {%- endcomment -%}
+    {%- if request.design_mode -%}
+      <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+        <strong>FAQ Debug Info:</strong><br>
+        Template: {{ template.name }}<br>
+        Is Collection: {{ is_collection }}<br>
+        Collection: {{ collection.title | json }}<br>
+        Collection FAQ Groups: {{ collection.metafields.custom.faq_groups | json }}<br>
+        FAQ Groups Value: {{ collection.metafields.custom.faq_groups.value | json }}<br>
+        FAQ Groups Count: {{ collection.metafields.custom.faq_groups.value.size | json }}
+      </div>
+    {%- endif -%}
+
     {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
     {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
       {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
