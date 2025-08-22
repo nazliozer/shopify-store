@@ -1,0 +1,85 @@
+{% comment %} Sub-Collection Navigation – reads collection.metafields.custom.category_slider (List<Collection>) {% endcomment %}
+{% if template.name == 'collection' and collection %}
+  {% assign items = collection.metafields.custom.category_slider.value %}
+  {% if items != blank %}
+  <section class="subnav">
+    <div class="page-width">
+      <div class="subnav__head">
+        <h2 class="subnav__title">{{ section.settings.title | default: 'Shop by category' }}</h2>
+      </div>
+
+      <div class="subnav__viewport">
+        <button class="subnav__arrow subnav__arrow--prev" aria-label="Previous" disabled>‹</button>
+        <div class="subnav__track" role="tablist" tabindex="0">
+          {% for c in items %}
+            <a class="subnav__btn{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
+              {% if c.image %}
+                {{ c.image | image_url: width: 160 | image_tag: loading: 'lazy', alt: c.title }}
+              {% endif %}
+              <span class="subnav__label">{{ c.title }}</span>
+            </a>
+          {% endfor %}
+        </div>
+        <button class="subnav__arrow subnav__arrow--next" aria-label="Next">›</button>
+        <div class="subnav__fade subnav__fade--left"></div>
+        <div class="subnav__fade subnav__fade--right"></div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Sub-collection navigation",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Shop by category" }
+  ],
+  "presets": [{ "name": "Sub-collection navigation" }],
+  "enabled_on": { "templates": ["collection"] }
+}
+{% endschema %}
+
+{% stylesheet %}
+.subnav{padding: clamp(20px,4vw,40px) 0}
+.subnav__title{margin:0 0 .5rem;font-weight:700;font-size:clamp(1.1rem,1rem+1vw,1.6rem)}
+.subnav__viewport{position:relative}
+.subnav__track{display:flex;gap:.75rem;overflow-x:auto;scroll-behavior:smooth;padding:.5rem 3.25rem}
+.subnav__btn{
+  flex:0 0 auto; display:flex; align-items:center; gap:.5rem;
+  border:1px solid #e9e9e9; border-radius:999px; padding:.5rem .9rem; background:#fff;
+  text-decoration:none; color:inherit; white-space:nowrap; transition:box-shadow .15s,border-color .15s,transform .12s
+}
+.subnav__btn:hover{box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-1px)}
+.subnav__btn.is-active{border-color:#d8d8d8; box-shadow:0 8px 22px rgba(0,0,0,.1)}
+.subnav__btn img{width:28px;height:28px;border-radius:999px;object-fit:cover}
+.subnav__arrow{
+  position:absolute; top:50%; transform:translateY(-50%); width:36px;height:36px;
+  border:1px solid #e6e6e6; border-radius:999px; background:#fff; box-shadow:0 8px 18px rgba(0,0,0,.12);
+  display:grid;place-items:center; cursor:pointer; z-index:2
+}
+.subnav__arrow--prev{left:.5rem} .subnav__arrow--next{right:.5rem}
+.subnav__arrow[disabled]{opacity:.35;cursor:not-allowed;box-shadow:none}
+.subnav__fade{position:absolute;top:0;bottom:0;width:42px;pointer-events:none}
+.subnav__fade--left{left:0;background:linear-gradient(90deg,#fff,transparent)}
+.subnav__fade--right{right:0;background:linear-gradient(270deg,#fff,transparent)}
+{% endstylesheet %}
+
+{% javascript %}
+(() => {
+  const root = document.currentScript.closest('.subnav'); if(!root) return;
+  const track = root.querySelector('.subnav__track');
+  const prev = root.querySelector('.subnav__arrow--prev');
+  const next = root.querySelector('.subnav__arrow--next');
+  const step = () => Math.max(220, Math.round(track.clientWidth*0.8));
+  const update = () => {
+    prev.disabled = track.scrollLeft <= 0;
+    next.disabled = Math.ceil(track.scrollLeft + track.clientWidth) >= track.scrollWidth - 1;
+  };
+  prev.addEventListener('click', () => track.scrollBy({left:-step(),behavior:'smooth'}));
+  next.addEventListener('click', () => track.scrollBy({left: step(),behavior:'smooth'}));
+  track.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  update();
+})();
+{% endjavascript %}
