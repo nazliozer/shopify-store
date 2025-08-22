@@ -102,6 +102,7 @@
   line-height: 1.4;
   transition: all 0.2s ease;
   user-select: none;
+  background-color: #ffffff;
 }
 
 .faq-question:hover {
@@ -112,6 +113,11 @@
 .faq-question:focus {
   outline: none;
   background-color: #f5f5f5;
+}
+
+details[open] .faq-question {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .faq-icon {
@@ -143,7 +149,7 @@ details[open] .faq-icon {
   font-size: 1.1rem;
   animation: slideDown 0.3s ease-out;
   font-weight: 400;
-  background: #fafafa;
+  background: #ffffff;
 }
 
 @keyframes slideDown {
