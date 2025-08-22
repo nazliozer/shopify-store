@@ -268,13 +268,6 @@ details[open] .faq-icon {
         {%- endif -%}
       {%- endfor -%}
     {%- endif -%}
-
-    {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
-    {%- if is_collection and collection.metafields.custom.faq_groups.value == blank -%}
-      <div class="faq-empty">
-        <p>No collection-specific FAQ found for this collection.</p>
-      </div>
-    {%- endif -%}
   </div>
 </section>
 
