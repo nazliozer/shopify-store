@@ -1,79 +1,394 @@
+{%- assign is_collection = false -%}
+{%- if template.name == 'collection' and collection != blank -%}
+  {%- assign is_collection = true -%}
+{%- endif -%}
+
+{%- comment -%} Get general FAQs from shop metafields {%- endcomment -%}
+{%- assign general_faqs = shop.metafields.store.general_store_faq.value -%}
+
+<style>
+.faq-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%);
+}
+
+.faq-section__title {
+  font-size: 3rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  position: relative;
+  letter-spacing: -0.03em;
+}
+
+.faq-section__title::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #a0aec0, #cbd5e0);
+  border-radius: 2px;
+}
+
+.faq-section__subtitle {
+  text-align: center;
+  font-size: 1.25rem;
+  color: #718096;
+  margin-bottom: 3.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.faq-groups {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-group {
+  margin-bottom: 2.5rem;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-group:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.12), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+}
+
+.faq-group__title {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  color: #4a5568;
+  padding: 1.75rem 2rem;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.faq-accordion {
+  padding: 0;
+}
+
+.faq-item {
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.faq-item:hover {
+  background-color: #f7fafc;
+}
+
+.faq-question {
+  padding: 1.75rem 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  transition: all 0.3s ease;
+  user-select: none;
+  background-color: #ffffff;
+  border: none;
+}
+
+.faq-question:hover {
+  color: #4a5568;
+  background-color: #f7fafc;
+}
+
+.faq-question:focus {
+  outline: none;
+  background-color: #edf2f7;
+}
+
+details[open] .faq-question {
+  background-color: #f7fafc;
+  color: #4a5568;
+  border: none;
+}
+
+.faq-icon {
+  font-size: 1.75rem;
+  font-weight: 300;
+  color: #718096;
+  transition: all 0.3s ease;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf2f7;
+  border: 2px solid #e2e8f0;
+}
+
+details[open] .faq-icon {
+  transform: rotate(45deg);
+  background: #a0aec0;
+  color: #ffffff;
+  border-color: #a0aec0;
+}
+
+.faq-answer {
+  padding: 0 2rem 1.75rem 2rem;
+  color: #4a5568;
+  line-height: 1.7;
+  font-size: 1.1rem;
+  animation: slideDown 0.3s ease-out;
+  font-weight: 400;
+  background: #f7fafc;
+  border: none;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.faq-answer p {
+  margin: 0 0 1rem 0;
+}
+
+.faq-answer p:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .faq-section {
+    padding: 2rem 1rem;
+  }
+  
+  .faq-section__title {
+    font-size: 2.25rem;
+  }
+  
+  .faq-group {
+    margin-bottom: 2rem;
+    border-radius: 16px;
+  }
+  
+  .faq-group__title {
+    padding: 1.5rem 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .faq-question {
+    padding: 1.5rem 1.5rem;
+    font-size: 1.125rem;
+  }
+  
+  .faq-answer {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+  }
+  
+  .faq-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.5rem;
+  }
+}
+
+/* Empty State */
+.faq-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #718096;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
+}
+
+.faq-empty p {
+  font-size: 1.125rem;
+  margin: 0;
+  font-weight: 400;
+}
+</style>
+
+<section class="faq-section page-width">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="faq-section__title">
+      {{ section.settings.heading }}
+    </h2>
+  {%- endif -%}
+
+  {%- if section.settings.subtext != blank -%}
+    <p class="faq-section__subtitle">{{ section.settings.subtext }}</p>
+  {%- endif -%}
+
+  <div class="faq-groups">
+
+
+    {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
+    {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
+      {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
+        {%- comment -%} Only show FAQ groups that are specific to this collection, exclude general ones {%- endcomment -%}
+        {%- assign is_general_faq = false -%}
+        {%- if faq_group.title contains 'General' or faq_group.title contains 'general' -%}
+          {%- assign is_general_faq = true -%}
+        {%- endif -%}
+        
+        {%- if is_general_faq == false and faq_group.items.value != blank -%}
+          <article class="faq-group">
+            {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+              <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+            {%- endif -%}
+
+            <div class="faq-accordion">
+              {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+              {%- for item in faq_group.items.value limit: limit -%}
+                <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                  <summary class="faq-question">
+                    <span>{{ item.question }}</span>
+                    <span class="faq-icon" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-answer rte">
+                    {{ item.answer | metafield_tag }}
+                  </div>
+                </details>
+              {%- endfor -%}
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- comment -%} General FAQs - show on homepage and when no collection-specific FAQs {%- endcomment -%}
+    {%- if general_faqs != blank -%}
+      {%- comment -%} Show general FAQs on non-collection pages {%- endcomment -%}
+      {%- if is_collection == false -%}
+        {%- for faq_group in general_faqs -%}
+          {%- if faq_group.items.value != blank -%}
+            <article class="faq-group">
+              {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+                <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+              {%- endif -%}
+
+              <div class="faq-accordion">
+                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+                {%- for item in faq_group.items.value limit: limit -%}
+                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                    <summary class="faq-question">
+                      <span>{{ item.question }}</span>
+                      <span class="faq-icon" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer rte">
+                      {{ item.answer | metafield_tag }}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- comment -%} Show general FAQs on collection pages when no collection-specific FAQs {%- endcomment -%}
+      {%- if is_collection == true and collection.metafields.custom.faq_groups.value == blank -%}
+        {%- for faq_group in general_faqs -%}
+          {%- if faq_group.items.value != blank -%}
+            <article class="faq-group">
+              {%- if faq_group.title != blank and section.settings.show_group_titles -%}
+                <h3 class="faq-group__title">{{ faq_group.title }}</h3>
+              {%- endif -%}
+
+              <div class="faq-accordion">
+                {%- assign limit = section.settings.limit_per_group | default: 50 -%}
+                {%- for item in faq_group.items.value limit: limit -%}
+                  <details class="faq-item" {%- if section.settings.open_first and forloop.first -%}open{%- endif -%}>
+                    <summary class="faq-question">
+                      <span>{{ item.question }}</span>
+                      <span class="faq-icon" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer rte">
+                      {{ item.answer | metafield_tag }}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
+    {%- if is_collection == true and collection.metafields.custom.faq_groups.value == blank and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No FAQ data found for this collection.</p>
+      </div>
+    {%- elsif is_collection == false and general_faqs == blank -%}
+      <div class="faq-empty">
+        <p>No general FAQ data found.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
 {% schema %}
 {
-  "name": "FAQ Section",
+  "name": "FAQ",
+  "tag": "section",
   "settings": [
     {
-      "type": "metaobject",
-      "id": "faq_metaobject",
-      "label": "FAQ Group",
-      "metaobject_type": "faq_group"
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subheading / helper text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_group_titles",
+      "label": "Show group titles",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first",
+      "label": "Open first item by default",
+      "default": true
     },
     {
       "type": "range",
-      "id": "limit",
+      "id": "limit_per_group",
+      "label": "Limit per group",
       "min": 1,
-      "max": 20,
+      "max": 50,
       "step": 1,
-      "default": 10,
-      "label": "Limit per group"
+      "default": 10
     }
   ],
   "presets": [
-    {
-      "name": "FAQ Section"
-    }
-  ]
+    { "name": "FAQ" }
+  ],
+  "enabled_on": {
+    "templates": ["index", "collection", "page", "product"]
+  }
 }
 {% endschema %}
-
-{% if section.settings.faq_metaobject %}
-  {% assign faq_group = section.settings.faq_metaobject %}
-
-  <div class="faq-section page-width">
-    <h2 class="faq-title">{{ faq_group.title }}</h2>
-
-    <div class="faq-items">
-      {% for item in faq_group.items.value limit: section.settings.limit %}
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            {{ item.question.value }}
-          </button>
-          <div class="faq-answer" hidden>
-            {{ item.answer.value }}
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-{% endif %}
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', !expanded);
-      btn.nextElementSibling.hidden = expanded;
-    });
-  });
-});
-</script>
-
-<style>
-.faq-section { margin: 2rem 0; }
-.faq-title { font-size: 1.5rem; margin-bottom: 1rem; }
-.faq-item { margin-bottom: 1rem; }
-.faq-question {
-  display: block;
-  width: 100%;
-  text-align: left;
-  font-weight: bold;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: .5rem 0;
-}
-.faq-answer {
-  padding: .5rem 0 0 1rem;
-}
-</style>
