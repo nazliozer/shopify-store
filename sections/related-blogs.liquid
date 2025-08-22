@@ -1,377 +1,112 @@
-{{ 'component-card.css' | asset_url | stylesheet_tag }}
-  {{ 'component-article-card.css' | asset_url | stylesheet_tag }}
+<section class="related-blogs page-width">
+  {%- if template.name == 'collection' and collection.metafields.custom.related_blogposts != blank -%}
+    {%- assign related_blogs = collection.metafields.custom.related_blogposts.value -%}
 
-  {%- style -%}
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
-    }
+    <h2 class="related-blogs__title">
+      {{ section.settings.heading | default: 'Related Articles' }}
+    </h2>
 
-    @media screen and (min-width: 750px) {
-      .section-{{ section.id }}-padding {
-        padding-top: {{ section.settings.padding_top }}px;
-        padding-bottom: {{ section.settings.padding_bottom }}px;
-      }
-    }
+    <div class="related-blogs__grid">
+      {%- for blog_post in related_blogs -%}
+        <article class="related-blogs__card">
+          {%- if blog_post.image != blank -%}
+            <a href="{{ blog_post.url }}" class="related-blogs__image-link">
+              <img 
+                src="{{ blog_post.image | image_url: width: 600 }}" 
+                alt="{{ blog_post.title | escape }}" 
+                class="related-blogs__image" 
+                loading="lazy"
+              >
+            </a>
+          {%- endif -%}
 
-    .collection-related-blog {
-      text-align: center;
-    }
-
-    .collection-related-blog__header {
-      margin-bottom: 3rem;
-    }
-
-    .collection-related-blog__heading {
-      margin: 0 0 1rem 0;
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--color-text);
-    }
-
-    .collection-related-blog__description {
-      margin: 0;
-      opacity: 0.8;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      font-size: 1rem;
-      line-height: 1.5;
-      color: var(--color-text);
-    }
-
-    .collection-related-blog__grid {
-      display: grid;
-      gap: 2rem;
-      grid-template-columns: repeat(3, 1fr);
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* Single post styling */
-    .collection-related-blog__grid.single-post {
-      grid-template-columns: minmax(300px, 400px);
-      justify-content: center;
-    }
-
-    .collection-related-blog__item {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      border-radius: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    .collection-related-blog__image-container {
-      position: relative;
-      aspect-ratio: 16/10;
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-
-    .collection-related-blog__image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .collection-related-blog__item:hover .collection-related-blog__image {
-      transform: scale(1.05);
-    }
-
-    .collection-related-blog__placeholder {
-      width: 100%;
-      height: 100%;
-      background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-size: 0.875rem;
-    }
-
-    .collection-related-blog__content {
-      padding: 1.5rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      text-align: left;
-      background: white;
-    }
-
-    .collection-related-blog__title {
-      margin: 0 0 1rem 0;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.3;
-      color: var(--color-text);
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-    }
-
-    .collection-related-blog__title a {
-      color: var(--color-text);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .collection-related-blog__title a:hover {
-      color: var(--color-accent);
-    }
-
-    .collection-related-blog__excerpt {
-      margin: 0 0 1.5rem 0;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      color: var(--color-text);
-      opacity: 0.8;
-      flex-grow: 1;
-    }
-
-    .collection-related-blog__read-more {
-      padding: 0;
-      background: none;
-      color: var(--color-accent);
-      text-decoration: underline;
-      border-radius: 0;
-      font-size: 0.875rem;
-      font-weight: 400;
-      transition: color 0.2s ease;
-      display: inline-block;
-      text-align: left;
-      border: none;
-      cursor: pointer;
-      align-self: flex-start;
-    }
-
-    .collection-related-blog__read-more:hover {
-      color: var(--color-accent-hover);
-      background: none;
-      transform: none;
-    }
-
-    .collection-related-blog__empty {
-      padding: 3rem 2rem;
-      text-align: center;
-      color: var(--color-text);
-      opacity: 0.6;
-      background: white;
-      border-radius: 0;
-      border: 1px solid #e0e0e0;
-    }
-
-    @media screen and (max-width: 989px) {
-      .collection-related-blog__grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-      }
-    }
-
-    @media screen and (max-width: 749px) {
-      .collection-related-blog__heading {
-        font-size: 1.75rem;
-      }
-      
-      .collection-related-blog__grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 0 1rem;
-      }
-      
-      .collection-related-blog__content {
-        padding: 1.25rem;
-      }
-      
-      .collection-related-blog__title {
-        font-size: 0.9rem;
-      }
-    }
-  {%- endstyle -%}
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const grids = document.querySelectorAll('.collection-related-blog__grid');
-      grids.forEach(grid => {
-        const items = grid.querySelectorAll('.collection-related-blog__item');
-        if (items.length === 1) {
-          grid.classList.add('single-post');
-        }
-      });
-    });
-  </script>
-
-  <div class="section-{{ section.id }}-padding color-{{ section.settings.color_scheme }} gradient">
-    <div class="page-width">
-      <div class="collection-related-blog{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
-        {%- if section.settings.heading != blank -%}
-          <div class="collection-related-blog__header">
-            <h2 class="collection-related-blog__heading {{ section.settings.heading_size }}">
-              {{ section.settings.heading }}
-            </h2>
-            {%- if section.settings.description != blank -%}
-              <p class="collection-related-blog__description">{{ section.settings.description }}</p>
+          <div class="related-blogs__content">
+            <h3 class="related-blogs__heading">
+              <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
+            </h3>
+            {%- if blog_post.excerpt != blank -%}
+              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
             {%- endif -%}
           </div>
-        {%- endif -%}
-
-        {%- comment -%} Get related blog posts from collection metaobjects {%- endcomment -%}
-        {%- assign related_posts = collection.metafields[section.settings.metafield_namespace][section.settings.metafield_key] -%}
-        
-        {%- if related_posts != blank and related_posts.value != blank -%}
-          {%- assign posts_to_display = related_posts.value -%}
-          
-          <div class="collection-related-blog__grid">
-            {%- for post in posts_to_display limit: section.settings.post_limit -%}
-              {%- if post.title != blank or post.excerpt != blank -%}
-                <article class="card-wrapper card-wrapper--media collection-related-blog__item">
-                  <div class="card card--media card--text">
-                    <div class="card__inner">
-                      <div class="collection-related-blog__image-container">
-                        {%- if post.image != blank -%}
-                          <img 
-                            src="{{ post.image | image_url: width: 400 }}" 
-                            alt="{{ post.title | escape }}"
-                            class="collection-related-blog__image"
-                            loading="lazy"
-                            width="400"
-                            height="250"
-                          >
-                        {%- else -%}
-                          <div class="collection-related-blog__placeholder">
-                            {{ 'blogs.article.no_image' | t }}
-                          </div>
-                        {%- endif -%}
-                      </div>
-                      
-                      <div class="collection-related-blog__content">
-                        <h3 class="collection-related-blog__title">
-                          <a href="{{ post.link | default: '#' }}">
-                            {{ post.title | default: 'Article Title' }}
-                          </a>
-                        </h3>
-                        
-                        {%- if post.excerpt != blank -%}
-                          <p class="collection-related-blog__excerpt">
-                            {{ post.excerpt | strip_html | truncate: 120 }}
-                          </p>
-                        {%- endif -%}
-                        
-                        <a href="{{ post.link | default: '#' }}" class="collection-related-blog__read-more">
-                          {{ 'blogs.article.read_more' | t }}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              {%- endif -%}
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
-        
-        {%- if related_posts == blank -%}
-          <div class="collection-related-blog__empty">
-            <p>{{ 'blogs.article.no_related_posts' | t }}</p>
-          </div>
-        {%- endif -%}
-      </div>
+        </article>
+      {%- endfor -%}
     </div>
-  </div>
+  {%- else -%}
+    <div class="related-blogs__empty">
+      <p>No related blog posts found for this collection.</p>
+    </div>
+  {%- endif -%}
+</section>
 
-  {% schema %}
-  {
-    "name": "Related Blog Posts",
-    "tag": "section",
-    "class": "section",
-    "settings": [
-      {
-        "type": "text",
-        "id": "heading",
-        "label": "Heading",
-        "default": "Related Articles"
-      },
-      {
-        "type": "textarea",
-        "id": "description",
-        "label": "Description",
-        "default": "Discover helpful articles and insights related to this collection."
-      },
-      {
-        "type": "select",
-        "id": "heading_size",
-        "options": [
-          {
-            "value": "h2",
-            "label": "Small"
-          },
-          {
-            "value": "h1",
-            "label": "Medium"
-          },
-          {
-            "value": "h0",
-            "label": "Large"
-          }
-        ],
-        "default": "h1",
-        "label": "Heading size"
-      },
-      {
-        "type": "range",
-        "id": "post_limit",
-        "min": 2,
-        "max": 6,
-        "step": 1,
-        "label": "Maximum posts to show",
-        "default": 3
-      },
-      {
-        "type": "range",
-        "id": "padding_top",
-        "min": 0,
-        "max": 100,
-        "step": 4,
-        "unit": "px",
-        "label": "Padding top",
-        "default": 36
-      },
-      {
-        "type": "range",
-        "id": "padding_bottom",
-        "min": 0,
-        "max": 100,
-        "step": 4,
-        "unit": "px",
-        "label": "Padding bottom",
-        "default": 36
-      },
-      {
-        "type": "color_scheme",
-        "id": "color_scheme",
-        "label": "Color scheme",
-        "default": "scheme-1"
-      },
-      {
-        "type": "text",
-        "id": "metafield_namespace",
-        "label": "Metafield namespace",
-        "default": "custom",
-        "info": "Namespace for the metafield containing related blog posts (use 'custom' for Metaobjects)"
-      },
-      {
-        "type": "text",
-        "id": "metafield_key",
-        "label": "Metafield key",
-        "default": "related_blog_posts",
-        "info": "Key for the metafield containing related blog posts (should be a List of Metaobjects)"
-      }
-    ],
-    "presets": [
-      {
-        "name": "Related Blog Posts"
-      }
-    ]
+{% schema %}
+{
+  "name": "Related Blog Posts",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Related Articles"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Related Blog Posts"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
   }
-  {% endschema %}
+}
+{% endschema %}
+
+<style>
+.related-blogs {
+  margin: 4rem 0;
+}
+
+.related-blogs__title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.related-blogs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.related-blogs__card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.related-blogs__card:hover {
+  transform: translateY(-4px);
+}
+
+.related-blogs__image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.related-blogs__content {
+  padding: 1rem 1.25rem;
+}
+
+.related-blogs__heading {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.related-blogs__excerpt {
+  font-size: 0.95rem;
+  color: #555;
+}
+</style>
