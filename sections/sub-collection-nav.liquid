@@ -9,18 +9,30 @@
 {%- assign target_collection = section.settings.featured_collection | default: collection -%}
 
 {%- if target_collection -%}
-  {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
-  {%- if entries == blank -%}
-    {%- comment -%} Try alternative access method {%- endcomment -%}
-    {%- assign entries = target_collection.metafields.custom.category_slider -%}
+  {%- comment -%} Debug: Check what we have {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+      <strong>Debug Info:</strong><br>
+      Target Collection: {{ target_collection.title | json }}<br>
+      Target Collection Handle: {{ target_collection.handle | json }}<br>
+      Metaobject Field: {{ target_collection.metafields.custom.category_slider | json }}<br>
+      Metaobject Value: {{ target_collection.metafields.custom.category_slider.value | json }}<br>
+      Metaobject Type: {{ target_collection.metafields.custom.category_slider.type | json }}<br>
+      Entries Count: {{ target_collection.metafields.custom.category_slider.value.size | json }}<br>
+      First Entry: {{ target_collection.metafields.custom.category_slider.value.first | json }}<br>
+      Cats Count: {{ cats.size | json }}<br>
+      First Cat: {{ cats.first | json }}<br>
+      First Cat Handle: {{ cats.first.handle | json }}<br>
+      First Cat Collection: {{ cats.first.collection | json }}<br>
+      Generated URL: /collections/{{ cats.first.handle | default: cats.first.collection | split: '/' | last }}<br>
+    </div>
   {%- endif -%}
   
+  {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
     {%- assign cats = entries -%}
-    {%- comment -%} Handle metaobject_reference list {%- endcomment -%}
-    {%- if entries.first and entries.first.collection -%}
-      {%- comment -%} Extract collection handles from GID references {%- endcomment -%}
-      {%- assign cats = entries -%}
+    {%- if entries.first and entries.first.object_type -%}
+      {%- assign cats = entries | map: 'collection' -%}
     {%- endif -%}
 
     {%- if cats != blank -%}
@@ -45,7 +57,7 @@
           <div class="sub-collection-nav__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
               {%- if c and c != blank -%}
-              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.collection | split: '/' | last }}">
+              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.handle | default: c.collection | split: '/' | last }}">
                 <div class="sub-collection-card__media">
                   {%- if c.image -%}
                     {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'sub-collection-card__image' }}
@@ -164,6 +176,7 @@
   scroll-snap-type: x mandatory;
   padding: 1rem 4rem;
   margin: 0 1rem;
+  scrollbar-width: none;
 }
 
 .sub-collection-nav__track::-webkit-scrollbar {
