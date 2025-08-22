@@ -20,8 +20,12 @@
         {%- assign current_collection = nil -%}
         
         {%- if request.path contains '/collections/' -%}
+          {%- comment -%} Collection URL'den geliyor {%- endcomment -%}
           {%- assign path_parts = request.path | split: '/collections/' | last | split: '/' | first -%}
           {%- assign current_collection = collections[path_parts] -%}
+        {%- else -%}
+          {%- comment -%} Anasayfadan veya direkt product URL'den geliyor - ana collection'ı göster {%- endcomment -%}
+          {%- assign current_collection = product.collections.first -%}
         {%- endif -%}
         
         {%- if current_collection -%}
