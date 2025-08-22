@@ -1,85 +1,153 @@
-{% comment %} Sub-Collection Navigation – reads collection.metafields.custom.category_slider (List<Collection>) {% endcomment %}
-{% if template.name == 'collection' and collection %}
-  {% assign items = collection.metafields.custom.category_slider.value %}
-  {% if items != blank %}
-  <section class="subnav">
-    <div class="page-width">
-      <div class="subnav__head">
-        <h2 class="subnav__title">{{ section.settings.title | default: 'Shop by category' }}</h2>
-      </div>
+{%- comment -%}
+  Sub-collection Slider (polished)
+  - Data: collection.metafields.custom.category_slider (List<Collection> OR List<Metaobject{collection}>)
+  - Shows only on collection templates.
+{%- endcomment -%}
 
-      <div class="subnav__viewport">
-        <button class="subnav__arrow subnav__arrow--prev" aria-label="Previous" disabled>‹</button>
-        <div class="subnav__track" role="tablist" tabindex="0">
-          {% for c in items %}
-            <a class="subnav__btn{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
-              {% if c.image %}
-                {{ c.image | image_url: width: 160 | image_tag: loading: 'lazy', alt: c.title }}
-              {% endif %}
-              <span class="subnav__label">{{ c.title }}</span>
-            </a>
-          {% endfor %}
+{% if template.name == 'collection' and collection %}
+  {%- assign entries = collection.metafields.custom.category_slider.value -%}
+  {%- if entries != blank -%}
+    {%- comment %}
+      Normalize to an array of Collections => cats
+      If it's metaobjects (has object_type), map to their `collection` field.
+    {%- endcomment -%}
+    {%- assign cats = entries -%}
+    {%- if entries.first and entries.first.object_type -%}
+      {%- assign cats = entries | map: 'collection' -%}
+    {%- endif -%}
+
+    {%- if cats != blank -%}
+    <section class="subcat-slider" aria-label="Sub-categories">
+      <div class="subcat-slider__inner page-width">
+        <div class="subcat-slider__header">
+          <h2 class="subcat-slider__title">
+            {{ section.settings.title | default: 'Featured categories' }}
+          </h2>
         </div>
-        <button class="subnav__arrow subnav__arrow--next" aria-label="Next">›</button>
-        <div class="subnav__fade subnav__fade--left"></div>
-        <div class="subnav__fade subnav__fade--right"></div>
+
+        <div class="subcat-slider__viewport">
+          <button class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous" disabled>‹</button>
+
+          <div class="subcat-slider__track" role="tablist" tabindex="0">
+            {%- for c in cats -%}
+              {%- if c and c != blank -%}
+              <a class="subcat-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
+                <div class="subcat-card__media">
+                  {%- if c.image -%}
+                    {{ c.image | image_url: width: 640 | image_tag: loading: 'lazy', alt: c.title }}
+                  {%- else -%}
+                    {{ 'collection-1' | placeholder_svg_tag }}
+                  {%- endif -%}
+                </div>
+                <div class="subcat-card__body">
+                  <span class="subcat-card__title">{{ c.title }}</span>
+                </div>
+              </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          <button class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next">›</button>
+
+          <div class="subcat-slider__fade subcat-slider__fade--left" aria-hidden="true"></div>
+          <div class="subcat-slider__fade subcat-slider__fade--right" aria-hidden="true"></div>
+        </div>
       </div>
-    </div>
-  </section>
-  {% endif %}
+    </section>
+    {%- endif -%}
+  {%- endif -%}
 {% endif %}
 
 {% schema %}
 {
-  "name": "Sub-collection navigation",
+  "name": "Sub-collection slider",
   "settings": [
-    { "type": "text", "id": "title", "label": "Title", "default": "Shop by category" }
+    { "type": "inline_richtext", "id": "title", "label": "Heading", "default": "Featured categories" }
   ],
-  "presets": [{ "name": "Sub-collection navigation" }],
+  "presets": [{ "name": "Sub-collection slider" }],
   "enabled_on": { "templates": ["collection"] }
 }
 {% endschema %}
 
 {% stylesheet %}
-.subnav{padding: clamp(20px,4vw,40px) 0}
-.subnav__title{margin:0 0 .5rem;font-weight:700;font-size:clamp(1.1rem,1rem+1vw,1.6rem)}
-.subnav__viewport{position:relative}
-.subnav__track{display:flex;gap:.75rem;overflow-x:auto;scroll-behavior:smooth;padding:.5rem 3.25rem}
-.subnav__btn{
-  flex:0 0 auto; display:flex; align-items:center; gap:.5rem;
-  border:1px solid #e9e9e9; border-radius:999px; padding:.5rem .9rem; background:#fff;
-  text-decoration:none; color:inherit; white-space:nowrap; transition:box-shadow .15s,border-color .15s,transform .12s
+.subcat-slider{--gap:1rem;--card-w:280px;--radius:16px;--shadow:0 6px 18px rgba(0,0,0,.08);--ring:0 0 0 3px rgba(0,0,0,.08)}
+.subcat-slider__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.subcat-slider__title{margin:0;font-weight:700}
+
+.subcat-slider__viewport{position:relative}
+.subcat-slider__track{
+  display:flex;gap:var(--gap);
+  overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;
+  padding: .25rem 3.5rem; /* space for arrows */
 }
-.subnav__btn:hover{box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-1px)}
-.subnav__btn.is-active{border-color:#d8d8d8; box-shadow:0 8px 22px rgba(0,0,0,.1)}
-.subnav__btn img{width:28px;height:28px;border-radius:999px;object-fit:cover}
-.subnav__arrow{
-  position:absolute; top:50%; transform:translateY(-50%); width:36px;height:36px;
-  border:1px solid #e6e6e6; border-radius:999px; background:#fff; box-shadow:0 8px 18px rgba(0,0,0,.12);
-  display:grid;place-items:center; cursor:pointer; z-index:2
+.subcat-card{
+  flex:0 0 auto;width:var(--card-w);scroll-snap-align:start;
+  border:1px solid #eee;border-radius:var(--radius);background:#fff;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.subnav__arrow--prev{left:.5rem} .subnav__arrow--next{right:.5rem}
-.subnav__arrow[disabled]{opacity:.35;cursor:not-allowed;box-shadow:none}
-.subnav__fade{position:absolute;top:0;bottom:0;width:42px;pointer-events:none}
-.subnav__fade--left{left:0;background:linear-gradient(90deg,#fff,transparent)}
-.subnav__fade--right{right:0;background:linear-gradient(270deg,#fff,transparent)}
+.subcat-card:is(:hover,:focus-visible){transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12);border-color:#e6e6e6;outline:none}
+.subcat-card.is-active{box-shadow:var(--ring)}
+.subcat-card__media{position:relative;overflow:hidden;border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
+/* 4:3 hero image; you can switch to 1:1 by changing padding-top to 100% */
+.subcat-card__media::before{content:"";display:block;padding-top:75%}
+.subcat-card__media img,
+.subcat-card__media svg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover
+}
+.subcat-card__body{padding:.9rem 1rem}
+.subcat-card__title{font-weight:700;font-size:1rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.subcat-slider__arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:40px;height:40px;border-radius:999px;border:1px solid #e6e6e6;background:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);display:grid;place-items:center;cursor:pointer;z-index:2
+}
+.subcat-slider__arrow--prev{left:.5rem}
+.subcat-slider__arrow--next{right:.5rem}
+.subcat-slider__arrow[disabled]{opacity:.35;cursor:not-allowed}
+
+.subcat-slider__fade{pointer-events:none;position:absolute;top:0;height:100%;width:48px;z-index:1}
+.subcat-slider__fade--left{left:0;background:linear-gradient(90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
+.subcat-slider__fade--right{right:0;background:linear-gradient(-90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
+
+@media (max-width: 900px){
+  .subcat-slider{--card-w:220px}
+}
+@media (max-width: 640px){
+  .subcat-slider{--card-w:180px;--gap:.75rem}
+  .subcat-slider__track{padding:.25rem 2.75rem}
+}
 {% endstylesheet %}
 
 {% javascript %}
 (() => {
-  const root = document.currentScript.closest('.subnav'); if(!root) return;
-  const track = root.querySelector('.subnav__track');
-  const prev = root.querySelector('.subnav__arrow--prev');
-  const next = root.querySelector('.subnav__arrow--next');
-  const step = () => Math.max(220, Math.round(track.clientWidth*0.8));
-  const update = () => {
-    prev.disabled = track.scrollLeft <= 0;
-    next.disabled = Math.ceil(track.scrollLeft + track.clientWidth) >= track.scrollWidth - 1;
+  const root = document.currentScript.closest('.subcat-slider');
+  if(!root) return;
+  const track = root.querySelector('.subcat-slider__track');
+  const prev = root.querySelector('.subcat-slider__arrow--prev');
+  const next = root.querySelector('.subcat-slider__arrow--next');
+
+  const step = () => {
+    const card = track.querySelector('.subcat-card');
+    if(!card) return 300;
+    const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 16;
+    return card.getBoundingClientRect().width + gap;
   };
-  prev.addEventListener('click', () => track.scrollBy({left:-step(),behavior:'smooth'}));
-  next.addEventListener('click', () => track.scrollBy({left: step(),behavior:'smooth'}));
-  track.addEventListener('scroll', update, {passive:true});
+
+  const update = () => {
+    prev.disabled = track.scrollLeft <= 2;
+    next.disabled = Math.ceil(track.scrollLeft + track.clientWidth) >= track.scrollWidth - 2;
+  };
+
+  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+  next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+  track.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+  track.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowLeft') prev.click();
+    if(e.key === 'ArrowRight') next.click();
+  });
+
   update();
 })();
 {% endjavascript %}
