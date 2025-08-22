@@ -12,8 +12,26 @@
   {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
     {%- assign cats = entries -%}
-    {%- if entries.first and entries.first.object_type -%}
+    {%- comment -%} Debug: Check what we have {%- endcomment -%}
+    {%- if request.design_mode -%}
+      <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+        <strong>Debug Info:</strong><br>
+        Entries Count: {{ entries.size }}<br>
+        First Entry: {{ entries.first | json }}<br>
+        First Entry Type: {{ entries.first.object_type | json }}<br>
+        {%- if entries.first.collection -%}
+          First Collection: {{ entries.first.collection | json }}<br>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    {%- comment -%} Handle different data structures {%- endcomment -%}
+    {%- if entries.first.object_type == 'collection' -%}
+      {%- assign cats = entries -%}
+    {%- elsif entries.first.collection -%}
       {%- assign cats = entries | map: 'collection' -%}
+    {%- else -%}
+      {%- assign cats = entries -%}
     {%- endif -%}
 
     {%- if cats != blank -%}
@@ -157,7 +175,6 @@
   scroll-snap-type: x mandatory;
   padding: 1rem 4rem;
   margin: 0 1rem;
-  scrollbar-width: none;
 }
 
 .sub-collection-nav__track::-webkit-scrollbar {
