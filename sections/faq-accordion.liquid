@@ -5,7 +5,7 @@
     {
       "type": "metaobject",
       "id": "faq_metaobject",
-      "label": "FAQ Group",
+      "label": "General FAQ Group (Homepage)",
       "metaobject_type": "faq_group"
     },
     {
@@ -26,25 +26,72 @@
 }
 {% endschema %}
 
-{% if section.settings.faq_metaobject %}
-  {% assign faq_group = section.settings.faq_metaobject %}
+{% comment %} Check if we're on homepage or collection page {% endcomment %}
+{% assign is_homepage = false %}
+{% assign is_collection_page = false %}
 
+{% if template.name == 'index' %}
+  {% assign is_homepage = true %}
+{% elsif template.name == 'collection' and collection != blank %}
+  {% assign is_collection_page = true %}
+{% endif %}
+
+{% comment %} Get collection-specific FAQs {% endcomment %}
+{% assign collection_faqs = blank %}
+{% if is_collection_page %}
+  {% assign collection_faqs = collection.metafields.custom.faq_groups.value %}
+{% endif %}
+
+{% comment %} Get general FAQs for homepage {% endcomment %}
+{% assign general_faqs = blank %}
+{% if is_homepage %}
+  {% assign general_faqs = section.settings.faq_metaobject %}
+{% endif %}
+
+{% if collection_faqs != blank or general_faqs != blank %}
   <div class="faq-section page-width">
-    <h2 class="faq-title">{{ faq_group.title }}</h2>
-
-    <div class="faq-items">
-      {% for item in faq_group.items.value limit: section.settings.limit %}
-        <details class="faq-item">
-          <summary class="faq-question">
-            <span>{{ item.question.value }}</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </summary>
-          <div class="faq-answer rte">
-            {{ item.answer.value }}
+    {% if is_collection_page %}
+      {% comment %} Show collection-specific FAQ title {% endcomment %}
+      <h2 class="faq-title">{{ collection.title }} FAQ</h2>
+      
+      {% comment %} Display collection-specific FAQs {% endcomment %}
+      {% for faq_group in collection_faqs %}
+        {% if faq_group.items.value != blank %}
+          <div class="faq-items">
+            {% for item in faq_group.items.value limit: section.settings.limit %}
+              <details class="faq-item">
+                <summary class="faq-question">
+                  <span>{{ item.question.value }}</span>
+                  <span class="faq-icon" aria-hidden="true">+</span>
+                </summary>
+                <div class="faq-answer rte">
+                  {{ item.answer.value }}
+                </div>
+              </details>
+            {% endfor %}
           </div>
-        </details>
+        {% endif %}
       {% endfor %}
-    </div>
+      
+    {% elsif is_homepage and general_faqs != blank %}
+      {% comment %} Show general FAQ title {% endcomment %}
+      <h2 class="faq-title">{{ general_faqs.title }}</h2>
+      
+      {% comment %} Display general FAQs {% endcomment %}
+      <div class="faq-items">
+        {% for item in general_faqs.items.value limit: section.settings.limit %}
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>{{ item.question.value }}</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer rte">
+              {{ item.answer.value }}
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 {% endif %}
 

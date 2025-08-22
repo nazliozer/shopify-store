@@ -55,7 +55,7 @@
       "type": "faq-accordion",
       "name": "FAQ (General + Collection)",
       "settings": {
-        "faq_metaobject": "cleansers-faq",
+        "faq_metaobject": "",
         "limit": 10
       }
     }
