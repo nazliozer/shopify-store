@@ -1,16 +1,11 @@
 {%- comment -%}
-  Sub-collection Slider (polished)
+  Sub-collection Slider (refined, Dawn-friendly)
   - Data: collection.metafields.custom.category_slider (List<Collection> OR List<Metaobject{collection}>)
-  - Shows only on collection templates.
 {%- endcomment -%}
 
 {% if template.name == 'collection' and collection %}
   {%- assign entries = collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
-    {%- comment %}
-      Normalize to an array of Collections => cats
-      If it's metaobjects (has object_type), map to their `collection` field.
-    {%- endcomment -%}
     {%- assign cats = entries -%}
     {%- if entries.first and entries.first.object_type -%}
       {%- assign cats = entries | map: 'collection' -%}
@@ -26,7 +21,7 @@
         </div>
 
         <div class="subcat-slider__viewport">
-          <button class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous" disabled>‹</button>
+          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous" disabled>‹</button>
 
           <div class="subcat-slider__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
@@ -34,20 +29,23 @@
               <a class="subcat-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
                 <div class="subcat-card__media">
                   {%- if c.image -%}
-                    {{ c.image | image_url: width: 640 | image_tag: loading: 'lazy', alt: c.title }}
+                    {{ c.image | image_url: width: 960 | image_tag: loading: 'lazy', alt: c.title }}
                   {%- else -%}
                     {{ 'collection-1' | placeholder_svg_tag }}
                   {%- endif -%}
                 </div>
                 <div class="subcat-card__body">
-                  <span class="subcat-card__title">{{ c.title }}</span>
+                  <span class="subcat-card__title">
+                    {{ c.title }}
+                    <span class="subcat-card__chev" aria-hidden="true">→</span>
+                  </span>
                 </div>
               </a>
               {%- endif -%}
             {%- endfor -%}
           </div>
 
-          <button class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next">›</button>
+          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next">›</button>
 
           <div class="subcat-slider__fade subcat-slider__fade--left" aria-hidden="true"></div>
           <div class="subcat-slider__fade subcat-slider__fade--right" aria-hidden="true"></div>
@@ -70,32 +68,47 @@
 {% endschema %}
 
 {% stylesheet %}
-.subcat-slider{--gap:1rem;--card-w:280px;--radius:16px;--shadow:0 6px 18px rgba(0,0,0,.08);--ring:0 0 0 3px rgba(0,0,0,.08)}
+/* subtle, Dawn-friendly */
+.subcat-slider{--gap:1rem;--card-w:300px;--radius:14px}
 .subcat-slider__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.subcat-slider__title{margin:0;font-weight:700}
+.subcat-slider__title{
+  margin:0;font-weight:700;
+  font-size:clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
+}
 
 .subcat-slider__viewport{position:relative}
 .subcat-slider__track{
   display:flex;gap:var(--gap);
   overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;
-  padding: .25rem 3.5rem; /* space for arrows */
+  padding:.25rem 3.5rem;
 }
+.subcat-slider__track::-webkit-scrollbar{height:8px}
+.subcat-slider__track::-webkit-scrollbar-thumb{background:#ddd;border-radius:999px}
+
 .subcat-card{
   flex:0 0 auto;width:var(--card-w);scroll-snap-align:start;
-  border:1px solid #eee;border-radius:var(--radius);background:#fff;text-decoration:none;color:inherit;
-  box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  border:1px solid #e9e9e9;border-radius:var(--radius);background:#fff;
+  text-decoration:none;color:inherit;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;
+  box-shadow:0 2px 10px rgba(0,0,0,.04); /* çok abartmadan */
 }
-.subcat-card:is(:hover,:focus-visible){transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12);border-color:#e6e6e6;outline:none}
-.subcat-card.is-active{box-shadow:var(--ring)}
+.subcat-card:is(:hover,:focus-visible){transform:translateY(-1px);border-color:#e2e2e2;outline:none;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.subcat-card.is-active{border-color:#dcdcdc;box-shadow:0 0 0 3px rgba(0,0,0,.06) inset}
+
 .subcat-card__media{position:relative;overflow:hidden;border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
-/* 4:3 hero image; you can switch to 1:1 by changing padding-top to 100% */
+/* 4:3 oran; kare istersen %100 yap */
 .subcat-card__media::before{content:"";display:block;padding-top:75%}
 .subcat-card__media img,
-.subcat-card__media svg{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover
+.subcat-card__media svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+.subcat-card__body{padding:1rem 1rem 1.1rem}
+.subcat-card__title{
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  font-weight:700; letter-spacing:.2px;
+  font-size:clamp(1.05rem, .95rem + .6vw, 1.25rem);
+  line-height:1.2;
 }
-.subcat-card__body{padding:.9rem 1rem}
-.subcat-card__title{font-weight:700;font-size:1rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subcat-card__chev{opacity:.7;transition:transform .12s ease}
+.subcat-card:is(:hover,:focus-visible) .subcat-card__chev{transform:translateX(2px)}
 
 .subcat-slider__arrow{
   position:absolute;top:50%;transform:translateY(-50%);
@@ -110,12 +123,13 @@
 .subcat-slider__fade--left{left:0;background:linear-gradient(90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
 .subcat-slider__fade--right{right:0;background:linear-gradient(-90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
 
-@media (max-width: 900px){
-  .subcat-slider{--card-w:220px}
-}
+@media (max-width: 900px){ .subcat-slider{--card-w:240px} }
 @media (max-width: 640px){
-  .subcat-slider{--card-w:180px;--gap:.75rem}
+  .subcat-slider{--card-w:200px;--gap:.75rem}
   .subcat-slider__track{padding:.25rem 2.75rem}
+}
+@media (prefers-reduced-motion: reduce){
+  .subcat-card,.subcat-card__chev{transition:none}
 }
 {% endstylesheet %}
 
@@ -123,31 +137,45 @@
 (() => {
   const root = document.currentScript.closest('.subcat-slider');
   if(!root) return;
+
   const track = root.querySelector('.subcat-slider__track');
-  const prev = root.querySelector('.subcat-slider__arrow--prev');
-  const next = root.querySelector('.subcat-slider__arrow--next');
+  const prev  = root.querySelector('.subcat-slider__arrow--prev');
+  const next  = root.querySelector('.subcat-slider__arrow--next');
 
   const step = () => {
     const card = track.querySelector('.subcat-card');
-    if(!card) return 300;
-    const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 16;
-    return card.getBoundingClientRect().width + gap;
+    if (card) {
+      const cardW = card.getBoundingClientRect().width;
+      const styles = getComputedStyle(track);
+      const gap = parseFloat(styles.gap || styles.columnGap || 16);
+      return Math.max(200, Math.round(cardW + gap));
+    }
+    return Math.round(track.clientWidth * 0.85);
   };
 
   const update = () => {
-    prev.disabled = track.scrollLeft <= 2;
-    next.disabled = Math.ceil(track.scrollLeft + track.clientWidth) >= track.scrollWidth - 2;
+    const sl = Math.round(track.scrollLeft);
+    const max = track.scrollWidth - track.clientWidth;
+    prev.disabled = sl <= 1;
+    next.disabled = sl >= (max - 1);
   };
 
-  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
-  next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+  const scrollByStep = (dir = 1) => {
+    track.scrollBy({ left: dir * step(), behavior: 'smooth' });
+  };
+
+  prev.addEventListener('click', () => scrollByStep(-1));
+  next.addEventListener('click', () => scrollByStep( 1));
   track.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+
+  // Klavye desteği
   track.addEventListener('keydown', (e) => {
-    if(e.key === 'ArrowLeft') prev.click();
-    if(e.key === 'ArrowRight') next.click();
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); scrollByStep(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); scrollByStep( 1); }
   });
 
+  // İlk güncelleme
   update();
 })();
 {% endjavascript %}
