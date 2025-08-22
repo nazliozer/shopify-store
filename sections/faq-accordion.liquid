@@ -3,6 +3,213 @@
   {%- assign is_collection = true -%}
 {%- endif -%}
 
+<style>
+.faq-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.faq-section__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #1e293b;
+  position: relative;
+}
+
+.faq-section__title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+.faq-section__subtitle {
+  text-align: center;
+  font-size: 1.125rem;
+  color: #64748b;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.faq-groups {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-group {
+  margin-bottom: 3rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.faq-group__title {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.faq-accordion {
+  padding: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item:hover {
+  background-color: #f8fafc;
+}
+
+.faq-question {
+  padding: 1.5rem 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  color: #334155;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.faq-question:hover {
+  color: #1e40af;
+  background-color: #f1f5f9;
+}
+
+.faq-question:focus {
+  outline: none;
+  background-color: #eff6ff;
+}
+
+.faq-icon {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #3b82f6;
+  transition: all 0.3s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eff6ff;
+}
+
+details[open] .faq-icon {
+  transform: rotate(45deg);
+  background: #dbeafe;
+}
+
+.faq-answer {
+  padding: 0 2rem 1.5rem 2rem;
+  color: #475569;
+  line-height: 1.7;
+  font-size: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.faq-answer p {
+  margin: 0 0 1rem 0;
+}
+
+.faq-answer p:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .faq-section {
+    padding: 2rem 1rem;
+  }
+  
+  .faq-section__title {
+    font-size: 2rem;
+  }
+  
+  .faq-group {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+  }
+  
+  .faq-group__title {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.125rem;
+  }
+  
+  .faq-question {
+    padding: 1.25rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .faq-answer {
+    padding: 0 1.5rem 1.25rem 1.5rem;
+  }
+}
+
+/* Loading State */
+.faq-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+/* Empty State */
+.faq-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #64748b;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.faq-empty p {
+  font-size: 1.125rem;
+  margin: 0;
+}
+</style>
+
 <section class="faq-section page-width">
   <h2 class="faq-section__title">
     {{ section.settings.heading | default: 'Frequently Asked Questions' }}
@@ -71,7 +278,9 @@
     {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
     {%- if section.settings.faq_group == blank -%}
       {%- if is_collection == false -%}
-        <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
+        <div class="faq-empty">
+          <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
+        </div>
       {%- endif -%}
     {%- endif -%}
   </div>

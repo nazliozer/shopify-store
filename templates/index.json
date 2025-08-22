@@ -92,8 +92,8 @@
       "name": "FAQ (General + Collection)",
       "settings": {
         "faq_group": "faq-group-whypeyqk",
-        "heading": "Frequently Asked Questions",
-        "subtext": "sub",
+        "heading": "",
+        "subtext": "",
         "show_group_titles": true,
         "open_first": true,
         "limit_per_group": 10
