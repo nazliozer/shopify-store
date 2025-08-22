@@ -1,5 +1,5 @@
 {%- comment -%}
-  Sub-collection Slider (refined, Dawn-friendly)
+  Enhanced Sub-collection Slider with Better UX
   - Data: collection.metafields.custom.category_slider (List<Collection> OR List<Metaobject{collection}>)
 {%- endcomment -%}
 
@@ -16,11 +16,19 @@
       <div class="subcat-slider__inner page-width">
         <div class="subcat-slider__header">
           <h2 class="subcat-slider__title">
-            {{ section.settings.title | default: 'Featured categories' }}
+            {{ section.settings.title | default: 'Explore Categories' }}
           </h2>
+          {% if section.settings.subtitle != blank %}
+            <p class="subcat-slider__subtitle">{{ section.settings.subtitle }}</p>
+          {% endif %}
         </div>
-         <div class="subcat-slider__viewport">
-          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous" disabled>‹</button>
+
+        <div class="subcat-slider__viewport">
+          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--prev" aria-label="Previous categories" disabled>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
 
           <div class="subcat-slider__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
@@ -28,22 +36,35 @@
               <a class="subcat-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
                 <div class="subcat-card__media">
                   {%- if c.image -%}
-                    {{ c.image | image_url: width: 960 | image_tag: loading: 'lazy', alt: c.title }}
+                    {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'subcat-card__image' }}
                   {%- else -%}
-                    {{ 'collection-1' | placeholder_svg_tag }}
+                    {{ 'collection-1' | placeholder_svg_tag: class: 'subcat-card__placeholder' }}
                   {%- endif -%}
+                  <div class="subcat-card__overlay">
+                    <span class="subcat-card__view-more">View Collection</span>
+                  </div>
                 </div>
                 <div class="subcat-card__body">
-                  <span class="subcat-card__title">
+                  <h3 class="subcat-card__title">
                     {{ c.title }}
-                    <span class="subcat-card__chev" aria-hidden="true">→</span>
-                  </span>
+                  </h3>
+                  {% if c.description != blank %}
+                    <p class="subcat-card__description">{{ c.description | strip_html | truncate: 80 }}</p>
+                  {% endif %}
+                  {% if c.products_count != blank %}
+                    <span class="subcat-card__count">{{ c.products_count }} products</span>
+                  {% endif %}
                 </div>
               </a>
               {%- endif -%}
             {%- endfor -%}
           </div>
-           <button type="button" class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next">›</button>
+
+          <button type="button" class="subcat-slider__arrow subcat-slider__arrow--next" aria-label="Next categories">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
 
           <div class="subcat-slider__fade subcat-slider__fade--left" aria-hidden="true"></div>
           <div class="subcat-slider__fade subcat-slider__fade--right" aria-hidden="true"></div>
@@ -58,7 +79,18 @@
 {
   "name": "Sub-collection slider",
   "settings": [
-    { "type": "inline_richtext", "id": "title", "label": "Heading", "default": "Featured categories" }
+    { 
+      "type": "inline_richtext", 
+      "id": "title", 
+      "label": "Heading", 
+      "default": "Explore Categories" 
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover our curated collections"
+    }
   ],
   "presets": [{ "name": "Sub-collection slider" }],
   "enabled_on": { "templates": ["collection"] }
@@ -66,74 +98,347 @@
 {% endschema %}
 
 {% stylesheet %}
-/* subtle, Dawn-friendly */
-.subcat-slider{--gap:1rem;--card-w:300px;--radius:14px}
-.subcat-slider__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.subcat-slider__title{
-  margin:0;font-weight:700;
-  font-size:clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
+.subcat-slider {
+  --gap: 1.5rem;
+  --card-w: 320px;
+  --card-h: 280px;
+  --radius: 16px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 3rem 0;
 }
 
-.subcat-slider__viewport{position:relative}
-.subcat-slider__track{
-  display:flex;gap:var(--gap);
-  overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;
-  padding:.25rem 3.5rem;
+.subcat-slider__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
-.subcat-slider__track::-webkit-scrollbar{height:8px}
-.subcat-slider__track::-webkit-scrollbar-thumb{background:#ddd;border-radius:999px}
 
-.subcat-card{
-  flex:0 0 auto;width:var(--card-w);scroll-snap-align:start;
-  border:1px solid #e9e9e9;border-radius:var(--radius);background:#fff;
-  text-decoration:none;color:inherit;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;
-  box-shadow:0 2px 10px rgba(0,0,0,.04); /* çok abartmadan */
+.subcat-slider__title {
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 1.5rem + 1.5vw, 2.5rem);
+  line-height: 1.2;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
-.subcat-card:is(:hover,:focus-visible){transform:translateY(-1px);border-color:#e2e2e2;outline:none;box-shadow:0 6px 16px rgba(0,0,0,.08)}
-.subcat-card.is-active{border-color:#dcdcdc;box-shadow:0 0 0 3px rgba(0,0,0,.06) inset}
 
-.subcat-card__media{position:relative;overflow:hidden;border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
-/* 4:3 oran; kare istersen %100 yap */
-.subcat-card__media::before{content:"";display:block;padding-top:75%}
-.subcat-card__media img,
-.subcat-card__media svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-
-.subcat-card__body{padding:1rem 1rem 1.1rem}
-.subcat-card__title{
-  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
-  font-weight:700; letter-spacing:.2px;
-  font-size:clamp(1.05rem, .95rem + .6vw, 1.25rem);
-  line-height:1.2;
+.subcat-slider__subtitle {
+  margin: 0;
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  color: var(--color-text-light);
+  line-height: 1.5;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.subcat-card__chev{opacity:.7;transition:transform .12s ease}
-.subcat-card:is(:hover,:focus-visible) .subcat-card__chev{transform:translateX(2px)}
 
-.subcat-slider__arrow{
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:40px;height:40px;border-radius:999px;border:1px solid #e6e6e6;background:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);display:grid;place-items:center;cursor:pointer;z-index:2
+.subcat-slider__viewport {
+  position: relative;
+  margin: 0 -1rem;
 }
-.subcat-slider__arrow--prev{left:.5rem}
-.subcat-slider__arrow--next{right:.5rem}
-.subcat-slider__arrow[disabled]{opacity:.35;cursor:not-allowed}
 
-.subcat-slider__fade{pointer-events:none;position:absolute;top:0;height:100%;width:48px;z-index:1}
-.subcat-slider__fade--left{left:0;background:linear-gradient(90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
-.subcat-slider__fade--right{right:0;background:linear-gradient(-90deg,rgba(255,255,255,1),rgba(255,255,255,0))}
-
-@media (max-width: 900px){ .subcat-slider{--card-w:240px} }
-@media (max-width: 640px){
-  .subcat-slider{--card-w:200px;--gap:.75rem}
-  .subcat-slider__track{padding:.25rem 2.75rem}
+.subcat-slider__track {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  padding: 1rem 4rem;
+  margin: 0 1rem;
 }
-@media (prefers-reduced-motion: reduce){
-  .subcat-card,.subcat-card__chev{transition:none}
+
+.subcat-slider__track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.subcat-slider__track::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 999px;
+}
+
+.subcat-slider__track::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.subcat-slider__track::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.subcat-card {
+  flex: 0 0 auto;
+  width: var(--card-w);
+  height: var(--card-h);
+  scroll-snap-align: start;
+  border-radius: var(--radius);
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.subcat-card:hover,
+.subcat-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  outline: none;
+}
+
+.subcat-card.is-active {
+  box-shadow: 0 0 0 3px var(--color-accent), var(--shadow);
+}
+
+.subcat-card__media {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #f8f8f8;
+}
+
+.subcat-card__image,
+.subcat-card__placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.subcat-card__placeholder {
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.subcat-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.subcat-card:hover .subcat-card__overlay {
+  opacity: 1;
+}
+
+.subcat-card__view-more {
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid white;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.subcat-card__body {
+  padding: 1.5rem;
+  background: white;
+  flex-shrink: 0;
+}
+
+.subcat-card__title {
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.3;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.subcat-card__description {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.subcat-card__count {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  background: rgba(var(--color-accent-rgb), 0.1);
+  border-radius: 999px;
+}
+
+.subcat-slider__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: var(--transition);
+  color: var(--color-text);
+}
+
+.subcat-slider__arrow:hover {
+  background: var(--color-accent);
+  color: white;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.subcat-slider__arrow--prev {
+  left: 0.5rem;
+}
+
+.subcat-slider__arrow--next {
+  right: 0.5rem;
+}
+
+.subcat-slider__arrow[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: translateY(-50%);
+}
+
+.subcat-slider__arrow[disabled]:hover {
+  background: white;
+  color: var(--color-text);
+  transform: translateY(-50%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.subcat-slider__fade {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 60px;
+  z-index: 1;
+}
+
+.subcat-slider__fade--left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+}
+
+.subcat-slider__fade--right {
+  right: 0;
+  background: linear-gradient(-90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .subcat-slider {
+    --card-w: 280px;
+    --card-h: 260px;
+  }
+}
+
+@media (max-width: 900px) {
+  .subcat-slider {
+    --card-w: 260px;
+    --card-h: 240px;
+    --gap: 1.25rem;
+  }
+  
+  .subcat-slider__track {
+    padding: 1rem 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .subcat-slider {
+    --card-w: 220px;
+    --card-h: 220px;
+    --gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .subcat-slider__header {
+    margin-bottom: 2rem;
+  }
+  
+  .subcat-slider__track {
+    padding: 1rem 3rem;
+    margin: 0 0.5rem;
+  }
+  
+  .subcat-slider__arrow {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .subcat-card__body {
+    padding: 1.25rem;
+  }
+  
+  .subcat-card__title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .subcat-slider {
+    --card-w: 200px;
+    --card-h: 200px;
+  }
+  
+  .subcat-slider__track {
+    padding: 1rem 2.5rem;
+  }
+}
+
+/* Accessibility and Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .subcat-card,
+  .subcat-card__overlay,
+  .subcat-card__image,
+  .subcat-slider__arrow {
+    transition: none;
+  }
+  
+  .subcat-slider__track {
+    scroll-behavior: auto;
+  }
+}
+
+/* Focus styles for better accessibility */
+.subcat-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.subcat-slider__arrow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 {% endstylesheet %}
 
 {% javascript %}
 document.addEventListener('DOMContentLoaded', function() {
-  // Tüm subcat-slider'ları bul
   const sliders = document.querySelectorAll('.subcat-slider');
   
   sliders.forEach(function(slider) {
@@ -148,10 +453,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (card) {
         const cardW = card.getBoundingClientRect().width;
         const styles = getComputedStyle(track);
-        const gap = parseFloat(styles.gap || styles.columnGap || 16);
+        const gap = parseFloat(styles.gap || styles.columnGap || 24);
         return Math.max(200, Math.round(cardW + gap));
       }
-      return Math.round(track.clientWidth * 0.85);
+      return Math.round(track.clientWidth * 0.8);
     };
 
     const update = () => {
@@ -159,16 +464,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const max = track.scrollWidth - track.clientWidth;
       prev.disabled = sl <= 1;
       next.disabled = sl >= (max - 1);
-    };const scrollByStep = (dir = 1) => {
+    };
+
+    const scrollByStep = (dir = 1) => {
       track.scrollBy({ left: dir * step(), behavior: 'smooth' });
     };
 
-    // Event listeners ekle
+    // Event listeners
     prev.addEventListener('click', () => scrollByStep(-1));
     next.addEventListener('click', () => scrollByStep(1));
     track.addEventListener('scroll', update, { passive: true });
     
-    // Klavye desteği
+    // Keyboard navigation
     track.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') { 
         e.preventDefault(); 
@@ -180,11 +487,52 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Resize event listener
+    // Touch/swipe support for mobile
+    let startX = 0;
+    let startY = 0;
+    let isScrolling = false;
+
+    track.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isScrolling = false;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', (e) => {
+      if (!startX || !startY) return;
+      
+      const deltaX = startX - e.touches[0].clientX;
+      const deltaY = startY - e.touches[0].clientY;
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        isScrolling = true;
+      }
+    }, { passive: true });
+
+    track.addEventListener('touchend', (e) => {
+      if (!startX || !startY || isScrolling) return;
+      
+      const deltaX = startX - e.changedTouches[0].clientX;
+      const minSwipeDistance = 50;
+      
+      if (Math.abs(deltaX) > minSwipeDistance) {
+        if (deltaX > 0) {
+          scrollByStep(1);
+        } else {
+          scrollByStep(-1);
+        }
+      }
+      
+      startX = 0;
+      startY = 0;
+    });
+
+    // Resize observer for better performance
     const resizeObserver = new ResizeObserver(update);
     resizeObserver.observe(track);
 
-    // İlk güncelleme
+    // Initial update
     update();
-  });});
+  });
+});
 {% endjavascript %}
