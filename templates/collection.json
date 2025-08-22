@@ -55,11 +55,8 @@
       "type": "faq-accordion",
       "name": "FAQ (General + Collection)",
       "settings": {
-        "heading": "",
-        "subtext": "",
-        "show_group_titles": true,
-        "open_first": false,
-        "limit_per_group": 10
+        "faq_metaobject": "cleansers-faq",
+        "limit": 10
       }
     }
   },
