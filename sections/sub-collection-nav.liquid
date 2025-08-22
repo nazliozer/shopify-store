@@ -157,8 +157,10 @@
   scroll-snap-type: x mandatory;
   padding: 1rem 4rem;
   margin: 0 1rem;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge eski */
+}
+
+.sub-collection-nav__track::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .sub-collection-nav__track::-webkit-scrollbar {
