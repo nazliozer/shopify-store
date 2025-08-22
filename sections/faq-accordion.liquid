@@ -5,14 +5,17 @@
     {
       "type": "metaobject",
       "id": "faq_metaobject",
-      "label": "FAQ Metaobject",
+      "label": "FAQ Group",
       "metaobject_type": "faq_group"
     },
     {
-      "type": "number",
+      "type": "range",
       "id": "limit",
-      "label": "Limit per group",
-      "default": 10
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 10,
+      "label": "Limit per group"
     }
   ],
   "presets": [
@@ -26,19 +29,51 @@
 {% if section.settings.faq_metaobject %}
   {% assign faq_group = section.settings.faq_metaobject %}
 
-  <div class="faq-section">
+  <div class="faq-section page-width">
     <h2 class="faq-title">{{ faq_group.title }}</h2>
+
     <div class="faq-items">
-      {% for item in faq_group.items limit: section.settings.limit %}
+      {% for item in faq_group.items.value limit: section.settings.limit %}
         <div class="faq-item">
           <button class="faq-question" aria-expanded="false">
-            {{ item.question }}
+            {{ item.question.value }}
           </button>
-          <div class="faq-answer">
-            {{ item.answer }}
+          <div class="faq-answer" hidden>
+            {{ item.answer.value }}
           </div>
         </div>
       {% endfor %}
     </div>
   </div>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !expanded);
+      btn.nextElementSibling.hidden = expanded;
+    });
+  });
+});
+</script>
+
+<style>
+.faq-section { margin: 2rem 0; }
+.faq-title { font-size: 1.5rem; margin-bottom: 1rem; }
+.faq-item { margin-bottom: 1rem; }
+.faq-question {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .5rem 0;
+}
+.faq-answer {
+  padding: .5rem 0 0 1rem;
+}
+</style>
