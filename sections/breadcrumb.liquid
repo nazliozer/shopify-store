@@ -19,7 +19,7 @@
         {%- comment -%} Try to get collection from URL first, then fallback to product collections {%- endcomment -%}
         {%- assign current_collection = nil -%}
         
-        {%- comment -%} Check if we came from a collection page via referrer or URL {%- endcomment -%}
+        {%- comment -%} Check if we came from a collection page via referrer {%- endcomment -%}
         {%- if request.referer contains '/collections/' -%}
           {%- assign referer_path = request.referer | split: '/collections/' | last | split: '?' | first -%}
           {%- assign referer_collection = collections[referer_path] -%}
@@ -37,9 +37,26 @@
           {%- endif -%}
         {%- endif -%}
         
-        {%- comment -%} Fallback to first collection if still no match {%- endcomment -%}
+        {%- comment -%} If still no collection, try to get from section settings or product context {%- endcomment -%}
         {%- if current_collection == nil -%}
-          {%- assign current_collection = collection | default: product.collections.first -%}
+          {%- comment -%} Check if we're in a collection context from section settings {%- endcomment -%}
+          {%- if collection and collection.products contains product -%}
+            {%- assign current_collection = collection -%}
+          {%- else -%}
+            {%- comment -%} Try to find the most relevant collection for this product {%- endcomment -%}
+            {%- for product_collection in product.collections -%}
+              {%- if product_collection.handle == 'cleansers' or product_collection.handle == 'bestsellers' -%}
+                {%- if product_collection.handle == 'cleansers' -%}
+                  {%- assign current_collection = product_collection -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- comment -%} If no specific collection found, use the first one {%- endcomment -%}
+            {%- if current_collection == nil -%}
+              {%- assign current_collection = product.collections.first -%}
+            {%- endif -%}
+          {%- endif -%}
         {%- endif -%}
         
         {%- if current_collection -%}
