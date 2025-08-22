@@ -1,14 +1,40 @@
 <section class="related-blogs page-width">
-  {%- if collection.metafields.custom.related_blogs != blank -%}
+  {%- comment -%} Get related blogs from collection or homepage settings {%- endcomment -%}
+  {%- assign related_blogs = nil -%}
+  
+  {%- if template.name == 'collection' and collection.metafields.custom.related_blogs != blank -%}
+    {%- assign related_blogs = collection.metafields.custom.related_blogs.value -%}
+  {%- elsif template.name == 'index' and section.settings.homepage_blogs != blank -%}
+    {%- assign related_blogs = section.settings.homepage_blogs.value -%}
+  {%- endif -%}
+
+  {%- comment -%} Debug: Show what we have {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+      <strong>Debug Info:</strong><br>
+      Template: {{ template.name }}<br>
+      Collection blogs: {{ collection.metafields.custom.related_blogs | json }}<br>
+      Homepage blogs: {{ section.settings.homepage_blogs | json }}<br>
+      Related blogs: {{ related_blogs | json }}
+    </div>
+  {%- endif -%}
+
+  {%- if related_blogs != blank -%}
     <h2 class="related-blogs__title">{{ section.settings.heading | default: 'Related Articles' }}</h2>
     <div class="related-blogs__grid">
-      {%- for blog_post in collection.metafields.custom.related_blogs.value -%}
+      {%- for blog_post in related_blogs -%}
         <article class="related-blogs__card">
-          {%- if blog_post.image != blank -%}
-            <a href="{{ blog_post.article.url }}" class="related-blogs__image-link">
+          {%- comment -%} Handle different metaobject structures {%- endcomment -%}
+          {%- assign post_image = blog_post.image | default: blog_post.featured_image | default: blog_post.thumbnail -%}
+          {%- assign post_title = blog_post.title | default: blog_post.heading | default: blog_post.name -%}
+          {%- assign post_excerpt = blog_post.excerpt | default: blog_post.description | default: blog_post.summary -%}
+          {%- assign post_url = blog_post.article.url | default: blog_post.url | default: blog_post.link -%}
+          
+          {%- if post_image != blank -%}
+            <a href="{{ post_url }}" class="related-blogs__image-link">
               <img 
-                src="{{ blog_post.image | image_url: width: 600 }}" 
-                alt="{{ blog_post.title | escape }}" 
+                src="{{ post_image | image_url: width: 600 }}" 
+                alt="{{ post_title | escape }}" 
                 class="related-blogs__image" 
                 loading="lazy"
               >
@@ -17,10 +43,10 @@
 
           <div class="related-blogs__content">
             <h3 class="related-blogs__heading">
-              <a href="{{ blog_post.article.url }}">{{ blog_post.title }}</a>
+              <a href="{{ post_url }}">{{ post_title }}</a>
             </h3>
-            {%- if blog_post.excerpt != blank -%}
-              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
+            {%- if post_excerpt != blank -%}
+              <p class="related-blogs__excerpt">{{ post_excerpt }}</p>
             {%- endif -%}
           </div>
         </article>
@@ -28,7 +54,11 @@
     </div>
   {%- else -%}
     <div class="related-blogs__empty">
-      <p>No related blog posts found for this collection.</p>
+      {%- if template.name == 'collection' -%}
+        <p>No related blog posts found for this collection.</p>
+      {%- else -%}
+        <p>No featured blog posts found.</p>
+      {%- endif -%}
     </div>
   {%- endif -%}
 </section>
@@ -43,6 +73,13 @@
       "id": "heading",
       "label": "Section Heading",
       "default": "Related Articles"
+    },
+    {
+      "type": "metaobject",
+      "id": "homepage_blogs",
+      "label": "Homepage Blog Posts",
+      "metaobject_type": "blog_post",
+      "info": "Select blog posts to display on the homepage"
     }
   ],
   "presets": [
@@ -51,7 +88,7 @@
     }
   ],
   "enabled_on": {
-    "templates": ["collection"]
+    "templates": ["collection", "index"]
   }
 }
 {% endschema %}
