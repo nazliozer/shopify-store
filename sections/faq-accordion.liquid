@@ -26,14 +26,17 @@
 }
 {% endschema %}
 
-{% comment %} Check if we're on homepage or collection page {% endcomment %}
+{% comment %} Check if we're on homepage, collection page, or product page {% endcomment %}
 {% assign is_homepage = false %}
 {% assign is_collection_page = false %}
+{% assign is_product_page = false %}
 
 {% if template.name == 'index' %}
   {% assign is_homepage = true %}
 {% elsif template.name == 'collection' and collection != blank %}
   {% assign is_collection_page = true %}
+{% elsif template.name == 'product' %}
+  {% assign is_product_page = true %}
 {% endif %}
 
 {% comment %} Get collection-specific FAQs {% endcomment %}
@@ -42,10 +45,10 @@
   {% assign collection_faqs = collection.metafields.custom.faq_groups.value %}
 {% endif %}
 
-{% comment %} Get general FAQs for homepage {% endcomment %}
+{% comment %} Get general FAQs for homepage and product pages {% endcomment %}
 {% assign general_faqs = blank %}
-{% if is_homepage %}
-  {% assign general_faqs = section.settings.faq_metaobject %}
+{% if is_homepage or is_product_page %}
+{% assign general_faqs = section.settings.faq_metaobject %}
 {% endif %}
 
 {% if collection_faqs != blank or general_faqs != blank %}
@@ -73,9 +76,13 @@
         {% endif %}
       {% endfor %}
       
-    {% elsif is_homepage and general_faqs != blank %}
+    {% elsif general_faqs != blank %}
       {% comment %} Show general FAQ title {% endcomment %}
-      <h2 class="faq-title">{{ general_faqs.title }}</h2>
+      {% if is_product_page %}
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+      {% else %}
+        <h2 class="faq-title">{{ general_faqs.title }}</h2>
+      {% endif %}
       
       {% comment %} Display general FAQs {% endcomment %}
       <div class="faq-items">
