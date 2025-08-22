@@ -1,17 +1,41 @@
+{% schema %}
+{
+  "name": "FAQ Section",
+  "settings": [
+    {
+      "type": "metaobject",
+      "id": "faq_metaobject",
+      "label": "FAQ Metaobject",
+      "metaobject_type": "faq_group"
+    },
+    {
+      "type": "number",
+      "id": "limit",
+      "label": "Limit per group",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Section"
+    }
+  ]
+}
+{% endschema %}
+
 {% if section.settings.faq_metaobject %}
   {% assign faq_group = section.settings.faq_metaobject %}
 
   <div class="faq-section">
     <h2 class="faq-title">{{ faq_group.title }}</h2>
-
     <div class="faq-items">
-      {% for item in faq_group.items.value %}
+      {% for item in faq_group.items limit: section.settings.limit %}
         <div class="faq-item">
           <button class="faq-question" aria-expanded="false">
-            {{ item.question.value }}
+            {{ item.question }}
           </button>
           <div class="faq-answer">
-            {{ item.answer.value }}
+            {{ item.answer }}
           </div>
         </div>
       {% endfor %}
