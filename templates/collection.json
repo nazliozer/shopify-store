@@ -51,7 +51,7 @@
       "name": "FAQ (General + Collection)",
       "settings": {
         "faq_group": "",
-        "heading": "Frequently Asked Questions",
+        "heading": "",
         "subtext": "",
         "show_group_titles": true,
         "open_first": true,
