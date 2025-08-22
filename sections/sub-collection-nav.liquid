@@ -18,6 +18,9 @@
       First Entry: {{ target_collection.metafields.custom.category_slider.value.first | json }}<br>
       Cats Count: {{ cats.size | json }}<br>
       First Cat: {{ cats.first | json }}<br>
+      First Cat Handle: {{ cats.first.handle | json }}<br>
+      First Cat Collection: {{ cats.first.collection | json }}<br>
+      Generated URL: /collections/{{ cats.first.handle | default: cats.first.collection | split: '/' | last }}<br>
     </div>
   {%- endif -%}
   
@@ -50,7 +53,7 @@
           <div class="sub-collection-nav__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
               {%- if c and c != blank -%}
-              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.handle }}">
+              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.handle | default: c.collection | split: '/' | last }}">
                 <div class="sub-collection-card__media">
                   {%- if c.image -%}
                     {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'sub-collection-card__image' }}
