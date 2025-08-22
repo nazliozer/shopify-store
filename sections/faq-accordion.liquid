@@ -243,16 +243,29 @@ details[open] .faq-icon {
         Template: {{ template.name }}<br>
         Is Collection: {{ is_collection }}<br>
         Collection: {{ collection.title | json }}<br>
+        Collection Handle: {{ collection.handle | json }}<br>
         Collection FAQ Groups: {{ collection.metafields.custom.faq_groups | json }}<br>
         FAQ Groups Value: {{ collection.metafields.custom.faq_groups.value | json }}<br>
-        FAQ Groups Count: {{ collection.metafields.custom.faq_groups.value.size | json }}
+        FAQ Groups Count: {{ collection.metafields.custom.faq_groups.value.size | json }}<br><br>
+        
+        <strong>FAQ Group Details:</strong><br>
+        {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
+          FAQ Group: {{ faq_group.title | json }}<br>
+          Items Count: {{ faq_group.items.value.size | json }}<br><br>
+        {%- endfor -%}
       </div>
     {%- endif -%}
 
     {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
     {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
       {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
-        {%- if faq_group.items.value != blank -%}
+        {%- comment -%} Only show FAQ groups that are specific to this collection, exclude general ones {%- endcomment -%}
+        {%- assign is_general_faq = false -%}
+        {%- if faq_group.title contains 'General' or faq_group.title contains 'general' -%}
+          {%- assign is_general_faq = true -%}
+        {%- endif -%}
+        
+        {%- if is_general_faq == false and faq_group.items.value != blank -%}
           <article class="faq-group">
             {%- if faq_group.title != blank and section.settings.show_group_titles -%}
               <h3 class="faq-group__title">{{ faq_group.title }}</h3>
