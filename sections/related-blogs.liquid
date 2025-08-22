@@ -1,81 +1,36 @@
 <section class="related-blogs page-width">
   {%- if template.name == 'collection' and collection.metafields.custom.related_blogposts != blank -%}
     {%- assign related_blogs = collection.metafields.custom.related_blogposts.value -%}
-    
-    {%- comment -%} Check if there are collection-specific blog posts {%- endcomment -%}
-    {%- assign has_collection_blogs = false -%}
-    {%- for blog_post in related_blogs -%}
-      {%- if blog_post.collection_handle == collection.handle or blog_post.collection_handle == blank -%}
-        {%- assign has_collection_blogs = true -%}
-        {%- break -%}
-      {%- endif -%}
-    {%- endfor -%}
 
-    {%- if has_collection_blogs -%}
-      {%- comment -%} Show collection-specific blog posts {%- endcomment -%}
-      <h2 class="related-blogs__title">
-        {{ section.settings.heading | default: 'Related Articles' }}
-      </h2>
+    <h2 class="related-blogs__title">
+      {{ section.settings.heading | default: 'Related Articles' }}
+    </h2>
 
-      <div class="related-blogs__grid">
-        {%- for blog_post in related_blogs -%}
-          {%- if blog_post.collection_handle == collection.handle or blog_post.collection_handle == blank -%}
-            <article class="related-blogs__card">
-              {%- if blog_post.image != blank -%}
-                <a href="{{ blog_post.url }}" class="related-blogs__image-link">
-                  <img 
-                    src="{{ blog_post.image | image_url: width: 600 }}" 
-                    alt="{{ blog_post.title | escape }}" 
-                    class="related-blogs__image" 
-                    loading="lazy"
-                  >
-                </a>
-              {%- endif -%}
-
-              <div class="related-blogs__content">
-                <h3 class="related-blogs__heading">
-                  <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
-                </h3>
-                {%- if blog_post.excerpt != blank -%}
-                  <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
-                {%- endif -%}
-              </div>
-            </article>
+    <div class="related-blogs__grid">
+      {%- for blog_post in related_blogs -%}
+        <article class="related-blogs__card">
+          {%- if blog_post.image != blank -%}
+            <a href="{{ blog_post.url }}" class="related-blogs__image-link">
+              <img 
+                src="{{ blog_post.image | image_url: width: 600 }}" 
+                alt="{{ blog_post.title | escape }}" 
+                class="related-blogs__image" 
+                loading="lazy"
+              >
+            </a>
           {%- endif -%}
-        {%- endfor -%}
-      </div>
-    {%- else -%}
-      {%- comment -%} If no collection-specific blogs, show general blog posts {%- endcomment -%}
-      <h2 class="related-blogs__title">
-        {{ section.settings.heading | default: 'General Articles' }}
-      </h2>
 
-      <div class="related-blogs__grid">
-        {%- for blog_post in related_blogs -%}
-          <article class="related-blogs__card">
-            {%- if blog_post.image != blank -%}
-              <a href="{{ blog_post.url }}" class="related-blogs__image-link">
-                <img 
-                  src="{{ blog_post.image | image_url: width: 600 }}" 
-                  alt="{{ blog_post.title | escape }}" 
-                  class="related-blogs__image" 
-                  loading="lazy"
-                >
-              </a>
+          <div class="related-blogs__content">
+            <h3 class="related-blogs__heading">
+              <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
+            </h3>
+            {%- if blog_post.excerpt != blank -%}
+              <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
             {%- endif -%}
-
-            <div class="related-blogs__content">
-              <h3 class="related-blogs__heading">
-                <a href="{{ blog_post.url }}">{{ blog_post.title }}</a>
-              </h3>
-              {%- if blog_post.excerpt != blank -%}
-                <p class="related-blogs__excerpt">{{ blog_post.excerpt }}</p>
-              {%- endif -%}
-            </div>
-          </article>
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
   {%- else -%}
     <div class="related-blogs__empty">
       <p>No related blog posts found for this collection.</p>
