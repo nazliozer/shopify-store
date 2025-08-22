@@ -9,24 +9,24 @@
 {%- assign target_collection = section.settings.featured_collection | default: collection -%}
 
 {%- if target_collection -%}
+  {%- comment -%} Debug: Check what we have {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <div style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.9rem;">
+      <strong>Debug Info:</strong><br>
+      Target Collection: {{ target_collection.title | json }}<br>
+      Entries Count: {{ target_collection.metafields.custom.category_slider.value.size | json }}<br>
+      First Entry: {{ target_collection.metafields.custom.category_slider.value.first | json }}<br>
+      Cats Count: {{ cats.size | json }}<br>
+      First Cat: {{ cats.first | json }}<br>
+    </div>
+  {%- endif -%}
+  
   {%- assign entries = target_collection.metafields.custom.category_slider.value -%}
   {%- if entries != blank -%}
-    {%- comment -%} Convert GID references to collection objects {% endcomment -%}
-    {%- assign cats = blank -%}
-    {%- assign cats_array = '' | split: '' -%}
-    
-    {%- for entry in entries -%}
-      {%- if entry.collection -%}
-        {%- assign collection_gid = entry.collection -%}
-        {%- assign collection_handle = collection_gid | split: '/' | last -%}
-        {%- assign collection_object = collections[collection_handle] -%}
-        {%- if collection_object -%}
-          {%- assign cats_array = cats_array | push: collection_object -%}
-        {%- endif -%}
-      {%- endif -%}
-    {%- endfor -%}
-    
-    {%- assign cats = cats_array -%}
+    {%- assign cats = entries -%}
+    {%- if entries.first and entries.first.object_type -%}
+      {%- assign cats = entries | map: 'collection' -%}
+    {%- endif -%}
 
     {%- if cats != blank -%}
     <section class="sub-collection-nav" aria-label="Sub-categories">
@@ -50,7 +50,7 @@
           <div class="sub-collection-nav__track" role="tablist" tabindex="0">
             {%- for c in cats -%}
               {%- if c and c != blank -%}
-              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="{{ c.url }}">
+              <a class="sub-collection-card{% if c.handle == collection.handle %} is-active{% endif %}" role="tab" href="/collections/{{ c.handle }}">
                 <div class="sub-collection-card__media">
                   {%- if c.image -%}
                     {{ c.image | image_url: width: 400, height: 300, crop: 'center' | image_tag: loading: 'lazy', alt: c.title, class: 'sub-collection-card__image' }}
