@@ -236,8 +236,8 @@ details[open] .faq-icon {
   {%- endif -%}
 
   <div class="faq-groups">
-    {%- comment -%} General Store FAQ from section settings {%- endcomment -%}
-    {%- if section.settings.faq_group != blank -%}
+    {%- comment -%} General Store FAQ from section settings - only on index/home page {%- endcomment -%}
+    {%- if template.name == 'index' and section.settings.faq_group != blank -%}
       {%- assign faq_group = section.settings.faq_group -%}
       {%- if faq_group.items.value != blank -%}
         <article class="faq-group">
@@ -263,7 +263,7 @@ details[open] .faq-icon {
       {%- endif -%}
     {%- endif -%}
 
-    {%- comment -%} Collection-specific FAQ groups (if any) {%- endcomment -%}
+    {%- comment -%} Collection-specific FAQ groups - only on collection pages {%- endcomment -%}
     {%- if is_collection and collection.metafields.custom.faq_groups.value != blank -%}
       {%- for faq_group in collection.metafields.custom.faq_groups.value -%}
         {%- if faq_group.items.value != blank -%}
@@ -292,12 +292,14 @@ details[open] .faq-icon {
     {%- endif -%}
 
     {%- comment -%} Show message if no FAQ data found {%- endcomment -%}
-    {%- if section.settings.faq_group == blank -%}
-      {%- if is_collection == false -%}
-        <div class="faq-empty">
-          <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
-        </div>
-      {%- endif -%}
+    {%- if template.name == 'index' and section.settings.faq_group == blank -%}
+      <div class="faq-empty">
+        <p>No FAQ data found. Please select a FAQ group in the section settings.</p>
+      </div>
+    {%- elsif is_collection and collection.metafields.custom.faq_groups.value == blank -%}
+      <div class="faq-empty">
+        <p>No collection-specific FAQ found for this collection.</p>
+      </div>
     {%- endif -%}
   </div>
 </section>
