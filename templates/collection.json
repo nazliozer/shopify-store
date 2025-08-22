@@ -50,12 +50,25 @@
       "settings": {
         "heading": "Related Articles"
       }
+    },
+    "faq_accordion_mJXMLL": {
+      "type": "faq-accordion",
+      "name": "FAQ (General + Collection)",
+      "settings": {
+        "faq_group": "",
+        "heading": "",
+        "subtext": "",
+        "show_group_titles": true,
+        "open_first": true,
+        "limit_per_group": 10
+      }
     }
   },
   "order": [
     "breadcrumb_xDjPN9",
     "banner",
     "product-grid",
-    "related_blogs_nRnFwT"
+    "related_blogs_nRnFwT",
+    "faq_accordion_mJXMLL"
   ]
 }
